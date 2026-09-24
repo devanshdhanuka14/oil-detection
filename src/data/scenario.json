@@ -1,0 +1,1134 @@
+{
+ "meta": {
+  "id": "PS26143-DEMO-S01",
+  "label": "Synthetic scenario · off Kochi · fictional vessels · not a reconstruction of the MSC Elsa 3 incident",
+  "seed": 26143,
+  "all_vessels_fictional": true,
+  "note": "Every number any screen displays must come from this file."
+ },
+ "geo": {
+  "projection": "equirectangular, x scaled by cos(9.75°)",
+  "bbox_detection": {
+   "lat": [
+    9.62,
+    9.92
+   ],
+   "lon": [
+    75.78,
+    76.12
+   ]
+  },
+  "bbox_backtracking": {
+   "lat": [
+    9.4,
+    10.25
+   ],
+   "lon": [
+    75.45,
+    76.45
+   ]
+  },
+  "bbox_attribution_overview": {
+   "lat": [
+    8.75,
+    10.6
+   ],
+   "lon": [
+    74.85,
+    76.65
+   ]
+  },
+  "bbox_attribution_loop": {
+   "lat": [
+    9.52,
+    9.88
+   ],
+   "lon": [
+    75.62,
+    76.05
+   ]
+  },
+  "coastline_fallback_points": [
+   [
+    8.49,
+    76.95
+   ],
+   [
+    8.73,
+    76.7
+   ],
+   [
+    8.88,
+    76.58
+   ],
+   [
+    9.3,
+    76.38
+   ],
+   [
+    9.49,
+    76.32
+   ],
+   [
+    9.8,
+    76.27
+   ],
+   [
+    9.965,
+    76.24
+   ],
+   [
+    10.0,
+    76.22
+   ],
+   [
+    10.18,
+    76.17
+   ],
+   [
+    10.53,
+    76.05
+   ]
+  ],
+  "places": {
+   "Kochi (Fort Kochi)": [
+    9.965,
+    76.24
+   ],
+   "Vypeen": [
+    10.0,
+    76.22
+   ],
+   "Munambam": [
+    10.18,
+    76.17
+   ],
+   "Chellanam": [
+    9.8,
+    76.27
+   ],
+   "Alappuzha": [
+    9.49,
+    76.32
+   ]
+  }
+ },
+ "sar": {
+  "sensor": "Sentinel-1",
+  "time_utc": "2025-05-28T00:41:00Z",
+  "region": "Arabian Sea",
+  "wind_ms": 6.2,
+  "wind_from_deg": 240,
+  "observable_pct": 92,
+  "blind_area_wind_ms": 1.8,
+  "next_pass_utc": "2025-05-28T14:22:00Z",
+  "radar_image": "procedurally generated (seeded speckle), see CLAUDE.md"
+ },
+ "detection": {
+  "counter": {
+   "from": 47,
+   "to": 2
+  },
+  "groups": [
+   {
+    "id": "fuzzy",
+    "count": 29,
+    "label": "fuzzy edges (0.4× typical sharpness)"
+   },
+   {
+    "id": "blobby",
+    "count": 11,
+    "label": "blobby shape, low elongation"
+   },
+   {
+    "id": "noise",
+    "count": 5,
+    "label": "signal at the sensor noise floor"
+   },
+   {
+    "id": "oil",
+    "count": 2,
+    "label": "CONFIRMED OIL"
+   }
+  ],
+  "S01": {
+   "oil_prob": 0.91,
+   "confidence": "HIGH",
+   "centre": [
+    9.7538,
+    75.9513
+   ],
+   "area_km2": 12.4,
+   "length_km": 18.0,
+   "width_m": 690,
+   "orientation_deg": 135,
+   "fragments": 3,
+   "fresh_end": [
+    9.8111,
+    75.8933
+   ],
+   "fresh_end_conf": 0.8,
+   "tail": [
+    9.6965,
+    76.0093
+   ],
+   "edge_sharpness_db_per_m": 0.118,
+   "edge_ratio": 3.4,
+   "elongation": 8.2,
+   "contrast_db": -7.1,
+   "above_noise_db": 9,
+   "vv_db": -7.1,
+   "vh_db": -3.2,
+   "expected_db": -6.4,
+   "damping": "strong",
+   "observable_share_pct": 95,
+   "freshness": "intermediate",
+   "volume_m3": [
+    6,
+    370
+   ],
+   "thickness_um_assumed": [
+    0.5,
+    30
+   ],
+   "oil_type_reported": "furnace oil + diesel",
+   "outline_levels": {
+    "tight_km2": 10.9,
+    "expected_km2": 12.4,
+    "generous_km2": 14.6
+   }
+  },
+  "S02": {
+   "oil_prob": 0.74,
+   "centre": [
+    9.66,
+    76.05
+   ],
+   "area_km2": 1.9,
+   "length_km": 5.2
+  },
+  "S14_rejected_example": {
+   "oil_prob": 0.14,
+   "edge_ratio": 0.4,
+   "elongation": 1.6,
+   "contrast_db": -2.1,
+   "verdict": "consistent with a low-wind patch"
+  },
+  "box_vs_outline": {
+   "box_km2": 400,
+   "slick_km2": 4
+  },
+  "bright_targets": [
+   {
+    "id": "BT-1",
+    "lat": 9.819,
+    "lon": 75.885,
+    "ais_match": "V-TESSERA",
+    "note": "nearest, 1.2 km from fresh end"
+   },
+   {
+    "id": "BT-2",
+    "lat": 9.73,
+    "lon": 76.06,
+    "ais_match": "V-ORCHID"
+   },
+   {
+    "id": "BT-3",
+    "lat": 9.8712,
+    "lon": 75.8327,
+    "ais_match": null,
+    "est_length_m": 58
+   },
+   {
+    "id": "BT-4",
+    "lat": 9.68,
+    "lon": 75.86,
+    "ais_match": "V-KESTREL"
+   }
+  ]
+ },
+ "backtracking": {
+  "age_window_h": [
+   12,
+   36
+  ],
+  "fay_h": [
+   14,
+   42
+  ],
+  "morphology": "< 36 h",
+  "hypotheses_h": [
+   12,
+   24,
+   36
+  ],
+  "weights": {
+   "12": 0.3,
+   "24": 0.38,
+   "36": 0.32
+  },
+  "oil_model": "HFO · IFO 380",
+  "spreading_C": 0.48,
+  "forcing": {
+   "current": "0.20 m/s from 221°",
+   "wind": "8.3 m/s from 240°",
+   "stokes": "0.08 m/s from 235°",
+   "wind_drift_factor_pct": 1.6,
+   "ekman_deg": 17,
+   "window_utc": [
+    "2025-05-26T12:41:00Z",
+    "2025-05-28T00:41:00Z"
+   ],
+   "net_drift": "0.40 m/s toward 055°"
+  },
+  "particles": {
+   "total": 600,
+   "per_hypothesis": 200,
+   "step_min": 15,
+   "output_min": 30
+  },
+  "centroids": {
+   "12": [
+    9.6642,
+    75.8223
+   ],
+   "24": [
+    9.5746,
+    75.6932
+   ],
+   "36": [
+    9.485,
+    75.5642
+   ]
+  },
+  "cloud_km2": {
+   "before": 340,
+   "after": 18
+  },
+  "forward_sims": 40,
+  "fss": 0.14,
+  "fss_baseline": 0.058,
+  "source": {
+   "lat": 9.6194,
+   "lon": 75.7578,
+   "time_utc": "2025-05-27T06:41:00Z",
+   "age_h": 18,
+   "range_utc": [
+    "2025-05-26T12:41:00Z",
+    "2025-05-27T12:41:00Z"
+   ],
+   "ellipse_1sig_nm": [
+    1.7,
+    1.0
+   ],
+   "ellipse_2sig_nm": [
+    3.4,
+    2.0
+   ],
+   "ellipse_axis_deg": 55,
+   "sigma_1sig_nm": 1.3,
+   "sigma_2sig_nm": 2.6,
+   "area_1sig_km2": 18,
+   "area_2sig_km2": 72,
+   "ais_tracks_in_1sig": [
+    "V-A",
+    "V-B",
+    "V-C"
+   ]
+  },
+  "uncertainty_nm": {
+   "age": 1.0,
+   "wind_drift": 0.7,
+   "current": 0.5,
+   "stokes": 0.2
+  },
+  "data_limits": {
+   "eddy_shift_nm": 0.5,
+   "wind_res_nm_18h": 0.4,
+   "limit_h": 72
+  },
+  "forecast_from_source": [
+   {
+    "h": 12,
+    "lat": 9.709,
+    "lon": 75.8868
+   },
+   {
+    "h": 24,
+    "lat": 9.7986,
+    "lon": 76.0159
+   },
+   {
+    "h": 36,
+    "lat": 9.8882,
+    "lon": 76.1449
+   },
+   {
+    "h": 48,
+    "note": "shoreline contact likely near Fort Kochi – Vypeen (≈43 h)"
+   }
+  ],
+  "coast_risk_72h": {
+   "Fort Kochi – Vypeen": 0.41,
+   "Chellanam": 0.24,
+   "Munambam": 0.09
+  },
+  "weathering_72h": {
+   "evaporated": 0.02,
+   "dispersed": 0.04,
+   "surface": 0.94
+  },
+  "survey": "9.85° N, 76.10° E before 28 May 2025 18:00 UTC",
+  "handoff": {
+   "search_radius_nm": {
+    "1sig": 52,
+    "2sig": 53,
+    "3sig": 55
+   },
+   "ais_window_utc": [
+    "2025-05-26T12:41:00Z",
+    "2025-05-28T00:41:00Z"
+   ]
+  },
+  "backtrack_points": [
+   {
+    "hours_before_image": 0.0,
+    "lat": 9.7538,
+    "lon": 75.9513,
+    "point_confidence": 1.0,
+    "radius_2sig_nm": 0.5
+   },
+   {
+    "hours_before_image": 0.5,
+    "lat": 9.7501,
+    "lon": 75.9459,
+    "point_confidence": 0.995,
+    "radius_2sig_nm": 0.56
+   },
+   {
+    "hours_before_image": 1.0,
+    "lat": 9.7463,
+    "lon": 75.9405,
+    "point_confidence": 0.99,
+    "radius_2sig_nm": 0.62
+   },
+   {
+    "hours_before_image": 1.5,
+    "lat": 9.7426,
+    "lon": 75.9352,
+    "point_confidence": 0.985,
+    "radius_2sig_nm": 0.68
+   },
+   {
+    "hours_before_image": 2.0,
+    "lat": 9.7389,
+    "lon": 75.9298,
+    "point_confidence": 0.98,
+    "radius_2sig_nm": 0.73
+   },
+   {
+    "hours_before_image": 2.5,
+    "lat": 9.7351,
+    "lon": 75.9244,
+    "point_confidence": 0.975,
+    "radius_2sig_nm": 0.79
+   },
+   {
+    "hours_before_image": 3.0,
+    "lat": 9.7314,
+    "lon": 75.919,
+    "point_confidence": 0.97,
+    "radius_2sig_nm": 0.85
+   },
+   {
+    "hours_before_image": 3.5,
+    "lat": 9.7277,
+    "lon": 75.9137,
+    "point_confidence": 0.965,
+    "radius_2sig_nm": 0.91
+   },
+   {
+    "hours_before_image": 4.0,
+    "lat": 9.7239,
+    "lon": 75.9083,
+    "point_confidence": 0.96,
+    "radius_2sig_nm": 0.97
+   },
+   {
+    "hours_before_image": 4.5,
+    "lat": 9.7202,
+    "lon": 75.9029,
+    "point_confidence": 0.955,
+    "radius_2sig_nm": 1.03
+   },
+   {
+    "hours_before_image": 5.0,
+    "lat": 9.7165,
+    "lon": 75.8975,
+    "point_confidence": 0.95,
+    "radius_2sig_nm": 1.08
+   },
+   {
+    "hours_before_image": 5.5,
+    "lat": 9.7127,
+    "lon": 75.8922,
+    "point_confidence": 0.945,
+    "radius_2sig_nm": 1.14
+   },
+   {
+    "hours_before_image": 6.0,
+    "lat": 9.709,
+    "lon": 75.8868,
+    "point_confidence": 0.94,
+    "radius_2sig_nm": 1.2
+   },
+   {
+    "hours_before_image": 6.5,
+    "lat": 9.7053,
+    "lon": 75.8814,
+    "point_confidence": 0.933,
+    "radius_2sig_nm": 1.26
+   },
+   {
+    "hours_before_image": 7.0,
+    "lat": 9.7015,
+    "lon": 75.876,
+    "point_confidence": 0.927,
+    "radius_2sig_nm": 1.32
+   },
+   {
+    "hours_before_image": 7.5,
+    "lat": 9.6978,
+    "lon": 75.8707,
+    "point_confidence": 0.92,
+    "radius_2sig_nm": 1.38
+   },
+   {
+    "hours_before_image": 8.0,
+    "lat": 9.6941,
+    "lon": 75.8653,
+    "point_confidence": 0.913,
+    "radius_2sig_nm": 1.43
+   },
+   {
+    "hours_before_image": 8.5,
+    "lat": 9.6903,
+    "lon": 75.8599,
+    "point_confidence": 0.907,
+    "radius_2sig_nm": 1.49
+   },
+   {
+    "hours_before_image": 9.0,
+    "lat": 9.6866,
+    "lon": 75.8545,
+    "point_confidence": 0.9,
+    "radius_2sig_nm": 1.55
+   },
+   {
+    "hours_before_image": 9.5,
+    "lat": 9.6829,
+    "lon": 75.8491,
+    "point_confidence": 0.895,
+    "radius_2sig_nm": 1.61
+   },
+   {
+    "hours_before_image": 10.0,
+    "lat": 9.6791,
+    "lon": 75.8438,
+    "point_confidence": 0.89,
+    "radius_2sig_nm": 1.67
+   },
+   {
+    "hours_before_image": 10.5,
+    "lat": 9.6754,
+    "lon": 75.8384,
+    "point_confidence": 0.885,
+    "radius_2sig_nm": 1.73
+   },
+   {
+    "hours_before_image": 11.0,
+    "lat": 9.6717,
+    "lon": 75.833,
+    "point_confidence": 0.88,
+    "radius_2sig_nm": 1.78
+   },
+   {
+    "hours_before_image": 11.5,
+    "lat": 9.6679,
+    "lon": 75.8276,
+    "point_confidence": 0.875,
+    "radius_2sig_nm": 1.84
+   },
+   {
+    "hours_before_image": 12.0,
+    "lat": 9.6642,
+    "lon": 75.8223,
+    "point_confidence": 0.87,
+    "radius_2sig_nm": 1.9
+   },
+   {
+    "hours_before_image": 12.5,
+    "lat": 9.6605,
+    "lon": 75.8169,
+    "point_confidence": 0.865,
+    "radius_2sig_nm": 1.96
+   },
+   {
+    "hours_before_image": 13.0,
+    "lat": 9.6567,
+    "lon": 75.8115,
+    "point_confidence": 0.86,
+    "radius_2sig_nm": 2.02
+   },
+   {
+    "hours_before_image": 13.5,
+    "lat": 9.653,
+    "lon": 75.8061,
+    "point_confidence": 0.855,
+    "radius_2sig_nm": 2.08
+   },
+   {
+    "hours_before_image": 14.0,
+    "lat": 9.6492,
+    "lon": 75.8008,
+    "point_confidence": 0.85,
+    "radius_2sig_nm": 2.13
+   },
+   {
+    "hours_before_image": 14.5,
+    "lat": 9.6455,
+    "lon": 75.7954,
+    "point_confidence": 0.845,
+    "radius_2sig_nm": 2.19
+   },
+   {
+    "hours_before_image": 15.0,
+    "lat": 9.6418,
+    "lon": 75.79,
+    "point_confidence": 0.84,
+    "radius_2sig_nm": 2.25
+   },
+   {
+    "hours_before_image": 15.5,
+    "lat": 9.638,
+    "lon": 75.7846,
+    "point_confidence": 0.833,
+    "radius_2sig_nm": 2.31
+   },
+   {
+    "hours_before_image": 16.0,
+    "lat": 9.6343,
+    "lon": 75.7793,
+    "point_confidence": 0.825,
+    "radius_2sig_nm": 2.37
+   },
+   {
+    "hours_before_image": 16.5,
+    "lat": 9.6306,
+    "lon": 75.7739,
+    "point_confidence": 0.818,
+    "radius_2sig_nm": 2.43
+   },
+   {
+    "hours_before_image": 17.0,
+    "lat": 9.6268,
+    "lon": 75.7685,
+    "point_confidence": 0.81,
+    "radius_2sig_nm": 2.48
+   },
+   {
+    "hours_before_image": 17.5,
+    "lat": 9.6231,
+    "lon": 75.7631,
+    "point_confidence": 0.805,
+    "radius_2sig_nm": 2.54
+   },
+   {
+    "hours_before_image": 18.0,
+    "lat": 9.6194,
+    "lon": 75.7577,
+    "point_confidence": 0.8,
+    "radius_2sig_nm": 2.6
+   },
+   {
+    "hours_before_image": 18.5,
+    "lat": 9.6156,
+    "lon": 75.7524,
+    "point_confidence": 0.792,
+    "radius_2sig_nm": 2.66
+   },
+   {
+    "hours_before_image": 19.0,
+    "lat": 9.6119,
+    "lon": 75.747,
+    "point_confidence": 0.783,
+    "radius_2sig_nm": 2.72
+   },
+   {
+    "hours_before_image": 19.5,
+    "lat": 9.6082,
+    "lon": 75.7416,
+    "point_confidence": 0.775,
+    "radius_2sig_nm": 2.78
+   },
+   {
+    "hours_before_image": 20.0,
+    "lat": 9.6044,
+    "lon": 75.7362,
+    "point_confidence": 0.767,
+    "radius_2sig_nm": 2.83
+   },
+   {
+    "hours_before_image": 20.5,
+    "lat": 9.6007,
+    "lon": 75.7309,
+    "point_confidence": 0.758,
+    "radius_2sig_nm": 2.89
+   },
+   {
+    "hours_before_image": 21.0,
+    "lat": 9.597,
+    "lon": 75.7255,
+    "point_confidence": 0.75,
+    "radius_2sig_nm": 2.95
+   },
+   {
+    "hours_before_image": 21.5,
+    "lat": 9.5932,
+    "lon": 75.7201,
+    "point_confidence": 0.742,
+    "radius_2sig_nm": 3.01
+   },
+   {
+    "hours_before_image": 22.0,
+    "lat": 9.5895,
+    "lon": 75.7147,
+    "point_confidence": 0.733,
+    "radius_2sig_nm": 3.07
+   },
+   {
+    "hours_before_image": 22.5,
+    "lat": 9.5858,
+    "lon": 75.7094,
+    "point_confidence": 0.725,
+    "radius_2sig_nm": 3.13
+   },
+   {
+    "hours_before_image": 23.0,
+    "lat": 9.582,
+    "lon": 75.704,
+    "point_confidence": 0.717,
+    "radius_2sig_nm": 3.18
+   },
+   {
+    "hours_before_image": 23.5,
+    "lat": 9.5783,
+    "lon": 75.6986,
+    "point_confidence": 0.708,
+    "radius_2sig_nm": 3.24
+   },
+   {
+    "hours_before_image": 24.0,
+    "lat": 9.5746,
+    "lon": 75.6932,
+    "point_confidence": 0.7,
+    "radius_2sig_nm": 3.3
+   },
+   {
+    "hours_before_image": 24.5,
+    "lat": 9.5708,
+    "lon": 75.6879,
+    "point_confidence": 0.683,
+    "radius_2sig_nm": 3.36
+   },
+   {
+    "hours_before_image": 25.0,
+    "lat": 9.5671,
+    "lon": 75.6825,
+    "point_confidence": 0.667,
+    "radius_2sig_nm": 3.42
+   },
+   {
+    "hours_before_image": 25.5,
+    "lat": 9.5634,
+    "lon": 75.6771,
+    "point_confidence": 0.65,
+    "radius_2sig_nm": 3.48
+   },
+   {
+    "hours_before_image": 26.0,
+    "lat": 9.5596,
+    "lon": 75.6717,
+    "point_confidence": 0.633,
+    "radius_2sig_nm": 3.53
+   },
+   {
+    "hours_before_image": 26.5,
+    "lat": 9.5559,
+    "lon": 75.6663,
+    "point_confidence": 0.617,
+    "radius_2sig_nm": 3.59
+   },
+   {
+    "hours_before_image": 27.0,
+    "lat": 9.5522,
+    "lon": 75.661,
+    "point_confidence": 0.6,
+    "radius_2sig_nm": 3.65
+   }
+  ]
+ },
+ "attribution": {
+  "counter": {
+   "in_window": 612,
+   "candidates": 38,
+   "suspects": 3
+  },
+  "filter_groups": [
+   {
+    "id": "reach",
+    "count": 402,
+    "label": "never within reach of the rewound oil"
+   },
+   {
+    "id": "time",
+    "count": 131,
+    "label": "near the oil's path, but at the wrong time"
+   },
+   {
+    "id": "port",
+    "count": 41,
+    "label": "stayed inside Kochi port limits for the whole window"
+   },
+   {
+    "id": "cand",
+    "count": 38,
+    "label": "candidates"
+   }
+  ],
+  "stop_rule": {
+   "threshold": 0.65,
+   "threshold_options": [
+    0.5,
+    0.65,
+    0.8
+   ],
+   "min_margin": 0.4,
+   "point_conf_floor": 0.6
+  },
+  "loop_rows": [
+   {
+    "h": 0,
+    "in_circle": 0,
+    "leader": null,
+    "p": null
+   },
+   {
+    "h": 3,
+    "in_circle": 2,
+    "leader": "candidate #21",
+    "p": 0.06
+   },
+   {
+    "h": 6,
+    "in_circle": 1,
+    "leader": "candidate #21",
+    "p": 0.05
+   },
+   {
+    "h": 9,
+    "in_circle": 3,
+    "leader": "candidate #9",
+    "p": 0.09
+   },
+   {
+    "h": 12,
+    "in_circle": 2,
+    "leader": "candidate #9",
+    "p": 0.11
+   },
+   {
+    "h": 15,
+    "in_circle": 4,
+    "leader": "candidate #9",
+    "p": 0.11
+   },
+   {
+    "h": 16.5,
+    "in_circle": 3,
+    "leader": "V-B",
+    "p": 0.34,
+    "second": 0.11
+   },
+   {
+    "h": 17.5,
+    "in_circle": 3,
+    "leader": "V-A",
+    "p": 0.52,
+    "second": 0.21,
+    "note": "margin 31 pts < 40 → continue"
+   },
+   {
+    "h": 18,
+    "in_circle": 3,
+    "leader": "V-A",
+    "p": 0.71,
+    "second": 0.12,
+    "stop_at_default": true
+   },
+   {
+    "h": 19,
+    "in_circle": 3,
+    "leader": "V-A",
+    "p": 0.74,
+    "second": 0.11
+   },
+   {
+    "h": 21,
+    "in_circle": 2,
+    "leader": "V-A",
+    "p": 0.76,
+    "second": 0.1
+   },
+   {
+    "h": 24,
+    "in_circle": 2,
+    "leader": "V-A",
+    "p": 0.77,
+    "second": 0.1
+   },
+   {
+    "h": 27,
+    "in_circle": 1,
+    "leader": "V-A",
+    "p": 0.77,
+    "second": 0.1,
+    "note": "point confidence reaches floor 0.60"
+   }
+  ],
+  "threshold_outcomes": {
+   "0.50": "stops at T−18 h (margin rule blocks T−17.5 h: 52% vs 21%) → V-A 71%",
+   "0.65": "stops at T−18 h → V-A 71%",
+   "0.80": "no candidate reaches 80% before point confidence hits 0.60 at T−27 h → V-A leads at 77%, reported as leading candidate, NOT conclusive"
+  },
+  "ranking": [
+   {
+    "id": "V-A",
+    "p": 0.71
+   },
+   {
+    "id": "V-B",
+    "p": 0.12
+   },
+   {
+    "id": "V-C",
+    "p": 0.06
+   },
+   {
+    "id": "DARK-BT3",
+    "p": 0.05
+   },
+   {
+    "id": "FIXED",
+    "p": 0.02
+   },
+   {
+    "id": "NONE",
+    "p": 0.03
+   },
+   {
+    "id": "OTHERS_35",
+    "p": 0.01
+   }
+  ],
+  "vessels": {
+   "V-A": {
+    "name": "MT Coral Meridian",
+    "mmsi": "538•••117 (synthetic)",
+    "type": "Product tanker",
+    "length_m": 183,
+    "flag": "Marshall Islands (fictional vessel)",
+    "draught_m": 10.9,
+    "max_draught_m": 11.6,
+    "destination": "JNPT Mumbai, ETA 29 May 03:00 UTC",
+    "track": [
+     {
+      "t": "2025-05-27T02:00:00Z",
+      "lat": 8.9588,
+      "lon": 76.3571,
+      "sog": 12.8
+     },
+     {
+      "t": "2025-05-27T05:46:00Z",
+      "lat": 9.5589,
+      "lon": 75.8127,
+      "sog": 5.3
+     },
+     {
+      "t": "2025-05-27T06:41:00Z",
+      "lat": 9.6194,
+      "lon": 75.7578,
+      "sog": 5.3
+     },
+     {
+      "t": "2025-05-27T07:36:00Z",
+      "lat": 9.6799,
+      "lon": 75.7029,
+      "sog": 12.8
+     },
+     {
+      "t": "2025-05-27T12:41:00Z",
+      "lat": 10.4897,
+      "lon": 74.968,
+      "sog": 12.8
+     }
+    ],
+    "cog": 318,
+    "match_window_utc": [
+     "2025-05-27T05:46:00Z",
+     "2025-05-27T07:36:00Z"
+    ],
+    "coverage": 0.81,
+    "parity_off_deg": 3,
+    "min_distance_nm": 0.3,
+    "speed_change": "12.8 → 5.3 kn for 1 h 50 min, then resumed",
+    "ais_gaps": []
+   },
+   "V-B": {
+    "name": "MV Saffron Crest",
+    "mmsi": "636•••402 (synthetic)",
+    "type": "Bulk carrier",
+    "length_m": 190,
+    "cog": 152,
+    "sog": 12.1,
+    "track": [
+     {
+      "t": "2025-05-27T05:00:00Z",
+      "lat": 10.2493,
+      "lon": 75.4424
+     },
+     {
+      "t": "2025-05-27T08:25:00Z",
+      "lat": 9.638,
+      "lon": 75.77
+     },
+     {
+      "t": "2025-05-27T12:00:00Z",
+      "lat": 8.997,
+      "lon": 76.1135
+     }
+    ],
+    "match_window_utc": [
+     "2025-05-27T08:13:00Z",
+     "2025-05-27T08:38:00Z"
+    ],
+    "coverage": 0.22,
+    "parity_off_deg": 17,
+    "min_distance_nm": 0.5,
+    "speed_change": "none (steady 12.1 kn)",
+    "ais_gaps": [
+     {
+      "from": "2025-05-27T09:10:00Z",
+      "to": "2025-05-27T09:53:00Z",
+      "minutes": 43,
+      "offshore_nm": 24,
+      "start": [
+       9.5038,
+       75.8419
+      ],
+      "end": [
+       9.3756,
+       75.9106
+      ],
+      "verdict": "reception gap, not counted (< 12 h and < 50 nm offshore)"
+     }
+    ]
+   },
+   "V-C": {
+    "name": "FV Blue Marlin 12",
+    "mmsi": "419•••388 (synthetic)",
+    "type": "Fishing vessel",
+    "length_m": 24,
+    "loiter_centre": [
+     9.615,
+     75.765
+    ],
+    "loiter_radius_km": 1.5,
+    "loiter_utc": [
+     "2025-05-27T04:30:00Z",
+     "2025-05-27T09:30:00Z"
+    ],
+    "coverage": 0.09,
+    "parity_off_deg": null,
+    "note": "fishing pattern (zig-zag), small craft → low type prior"
+   },
+   "V-TESSERA": {
+    "name": "MV Tessera Bay",
+    "mmsi": "477•••905 (synthetic)",
+    "type": "Container feeder",
+    "length_m": 147,
+    "cog": 338,
+    "sog": 13.0,
+    "track": [
+     {
+      "t": "2025-05-27T20:00:00Z",
+      "lat": 8.8737,
+      "lon": 76.2701
+     },
+     {
+      "t": "2025-05-28T00:41:00Z",
+      "lat": 9.819,
+      "lon": 75.885
+     },
+     {
+      "t": "2025-05-28T01:30:00Z",
+      "lat": 9.9839,
+      "lon": 75.8178
+     }
+    ],
+    "arrived_near_slick_utc": "2025-05-27T23:01:00Z",
+    "p": 0.002,
+    "role": "typical-approach trap: nearest ship at image time (1.2 km from fresh end), arrived 16 h after the oil was there"
+   },
+   "V-ORCHID": {
+    "name": "MV Orchid Wave",
+    "type": "General cargo",
+    "role": "bright target BT-2, image-time only"
+   },
+   "V-KESTREL": {
+    "name": "MT Kestrel Point",
+    "type": "Chemical tanker",
+    "role": "bright target BT-4, image-time only"
+   },
+   "V-NLARK": {
+    "name": "MV Northern Lark",
+    "role": "eliminated example (reach): closest approach 14.2 nm, needed ≤ 2.6 nm"
+   },
+   "V-SHERON": {
+    "name": "MT Silver Heron",
+    "role": "eliminated example (time): crossed the oil's path at 27 May 01:10 UTC, 5.5 h before the oil was there"
+   }
+  },
+  "dark": {
+   "id": "DARK-BT3",
+   "bright_target": "BT-3",
+   "lat": 9.8712,
+   "lon": 75.8327,
+   "est_length_m": 58,
+   "distance_from_fresh_end_km": 9.4,
+   "alignment_off_deg": 20,
+   "p": 0.05,
+   "note": "possible vessel, radar only, not AIS; vessels < 300 GT need not carry AIS"
+  },
+  "fixed": {
+   "p": 0.02,
+   "note": "no charted platform within 55 nm; one charted wreck (synthetic) 31 nm SE, outside the rewound oil"
+  },
+  "ais_coverage": {
+   "terrestrial_reach_nm": 40,
+   "source_offshore_nm": 32,
+   "search_area_beyond_reach_pct": 11,
+   "gaps_in_case": 3
+  }
+ }
+}
