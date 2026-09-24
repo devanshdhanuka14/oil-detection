@@ -6,8 +6,8 @@
  * target is never a "vessel identified"; it is "possible vessel, radar only,
  * not AIS". MMSIs always carry "(synthetic)".
  */
-import { attribution } from '../../../data/scenario';
-import { fmtHm, fmtUtc } from '../../../lib/time';
+import { attribution, backtracking, detection, sar } from '../../../data/scenario';
+import { fmtDuration, fmtHm, fmtUtc, hoursBetween } from '../../../lib/time';
 import type { AisTrack } from '../../../lib/generators/aisTracks';
 import { EstimatedBlock, Field, NotResolvableBlock, RuleHead, TickLine } from '../../../ui/primitives';
 
@@ -28,10 +28,14 @@ export function LeaderCard() {
       <div className="detail__group">
         <div className="detail__head">WHY</div>
         <TickLine>
-          inside the rewound oil for 1 h 50 min <span className="muted">({fmtUtc(from)} – {fmtHm(to)})</span>
+          inside the rewound oil for {fmtDuration(from, to)}{' '}
+          <span className="muted">({fmtUtc(from)} – {fmtHm(to)})</span>
         </TickLine>
         <TickLine>explains {pct(v.coverage)} of the slick's particles</TickLine>
-        <TickLine>heading {v.cog}° vs slick axis 315° — {v.parity_off_deg}° off parallel</TickLine>
+        <TickLine>
+          heading {v.cog}° vs slick axis {(detection.S01.orientation_deg + 180) % 360}° —{' '}
+          {v.parity_off_deg}° off parallel
+        </TickLine>
         <TickLine>{v.min_distance_nm} nm from the backtracked point at the matching time</TickLine>
         <TickLine>slowed from {v.speed_change}</TickLine>
       </div>
@@ -77,9 +81,13 @@ export function TrapCard() {
       <div className="detail__group">
         <div className="detail__head">WHY NOT</div>
         <TickLine kind="no">
-          arrived near the slick at {fmtHm(v.arrived_near_slick_utc)} UTC, 1 h 40 min before the image
+          arrived near the slick at {fmtHm(v.arrived_near_slick_utc)} UTC,{' '}
+          {fmtDuration(v.arrived_near_slick_utc, sar.time_utc)} before the image
         </TickLine>
-        <TickLine kind="no">the oil was already there about 16 h earlier and drifted in</TickLine>
+        <TickLine kind="no">
+          the oil was already there about{' '}
+          {hoursBetween(backtracking.source.time_utc, v.arrived_near_slick_utc)} h earlier and drifted in
+        </TickLine>
         <TickLine kind="no">never inside the rewound oil at any matching time</TickLine>
         <TickLine kind="arrow">
           nearest ship ≠ source. This is the most common false attribution.
@@ -110,7 +118,11 @@ export function CandidateCard({ id }: { id: 'V-B' | 'V-C' }) {
         <div className="detail__head">WHY</div>
         {id === 'V-B' ? (
           <>
-            <TickLine>inside the rewound oil for 25 min around {fmtHm((v.match_window_utc as string[])[0])} UTC</TickLine>
+            <TickLine>
+              inside the rewound oil for{' '}
+              {fmtDuration((v.match_window_utc as string[])[0], (v.match_window_utc as string[])[1])} around{' '}
+              {fmtHm((v.match_window_utc as string[])[0])} UTC
+            </TickLine>
             <TickLine kind="no">heading {String(v.cog)}°, {String(v.parity_off_deg)}° off parallel</TickLine>
             <TickLine kind="no">no slowdown — {String(v.speed_change)}</TickLine>
             <TickLine>explains {pct(v.coverage as number)} of the slick's particles</TickLine>

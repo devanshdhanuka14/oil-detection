@@ -20,11 +20,13 @@ import { backtrackTimeline } from './timeline';
 import { Stage1Panel, Stage2Panel, Stage3Panel } from './panels/StagePanels';
 import { SourcePanel, UncertaintyPanel } from './panels/SourcePanel';
 import { BacktrackHandoffPanel, DataLimitsPanel, ForecastPanel } from './panels/TogglePanels';
+import { BacktrackSideBySide } from './panels/SideBySidePanel';
+import { DataLimitOverlay, ForecastLayer, SingleArrow } from './ForecastLayer';
 
 const MAP_W = 1300;
 const MAP_H = 918;
 
-export const BACKTRACK_TOGGLES = ['forecast', 'limits', 'handoff'];
+export const BACKTRACK_TOGGLES = ['forecast', 'limits', 'handoff', 'sbs'];
 
 export function BacktrackScreen() {
   const { toggle, setToggle, selection, select, hiddenLayers, toggleLayer, ageHypothesis, setAgeHypothesis, sigma, setSigma } = useApp();
@@ -92,6 +94,10 @@ export function BacktrackScreen() {
           )}
           <svg className="map-svg" viewBox={`0 0 ${MAP_W} ${MAP_H}`} width={MAP_W} height={MAP_H}>
             {!hiddenLayers.path && <BacktrackPath p={p} points={backtrackPoints} />}
+            {toggle === 'forecast' && <ForecastLayer p={p} />}
+            {toggle === 'limits' && <DataLimitOverlay p={p} />}
+            {/* The one arrow every competing demo draws, then replaced. */}
+            {st.singleArrow > 0 && <SingleArrow p={p} opacity={st.singleArrow} />}
 
             {/* The observed slick, handed over by the detection team. */}
             {(s01.fragments ?? [s01.ring]).map((ring, i) => (
@@ -116,6 +122,7 @@ export function BacktrackScreen() {
               { id: 'forecast', label: 'Forecast 72 h' },
               { id: 'limits', label: 'Data limits' },
               { id: 'handoff', label: 'Hand-off' },
+              { id: 'sbs', label: 'Typical vs ours' },
             ]}
             value={toggle}
             onChange={setToggle}
@@ -128,6 +135,8 @@ export function BacktrackScreen() {
               <DataLimitsPanel />
             ) : toggle === 'handoff' ? (
               <BacktrackHandoffPanel />
+            ) : toggle === 'sbs' ? (
+              <BacktrackSideBySide />
             ) : showUncertainty ? (
               <>
                 <UncertaintyPanel />

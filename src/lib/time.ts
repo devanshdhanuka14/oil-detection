@@ -35,3 +35,18 @@ export function fmtStep(h: number): string {
   const s = Number.isInteger(h) ? String(h) : h.toFixed(1);
   return `T−${s} h`;
 }
+
+/** "1 h 50 min" / "25 min" — derived from two instants, never written down. */
+export function fmtDuration(fromIso: string, toIso: string): string {
+  const mins = Math.round((Date.parse(toIso) - Date.parse(fromIso)) / 60_000);
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  if (h === 0) return `${m} min`;
+  if (m === 0) return `${h} h`;
+  return `${h} h ${m} min`;
+}
+
+/** Whole hours between two instants, rounded — e.g. Tessera Bay's "16 h". */
+export function hoursBetween(fromIso: string, toIso: string): number {
+  return Math.round(Math.abs(Date.parse(toIso) - Date.parse(fromIso)) / 3600_000);
+}

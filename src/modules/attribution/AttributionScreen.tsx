@@ -26,11 +26,13 @@ import { FilterPanel, InputsPanel, LoopPanel } from './panels/StagePanels';
 import { Ranking } from './panels/Ranking';
 import { CandidateCard, DarkCard, EliminatedCard, FixedCard, LeaderCard, NoneCard, TrapCard } from './panels/Cards';
 import { AisCoveragePanel, CaseFilePanel, DarkFixedPanel } from './panels/TogglePanels';
+import { AttributionSideBySide } from './panels/SideBySidePanel';
+import { AisBlindZone, ReachabilityEllipse } from './CoverageLayer';
 
 const MAP_W = 1300;
 const MAP_H = 918;
 
-export const ATTRIBUTION_TOGGLES = ['coverage', 'dark', 'casefile'];
+export const ATTRIBUTION_TOGGLES = ['coverage', 'dark', 'casefile', 'sbs'];
 
 export function AttributionScreen() {
   const { toggle, setToggle, selection, select, hiddenLayers, toggleLayer, threshold, setThreshold, loopHours, setLoopHours } = useApp();
@@ -148,6 +150,8 @@ export function AttributionScreen() {
             <SourceLayer p={p} sigma={2} showPin={false} />
             {!hiddenLayers.dark && <BrightTargets p={p} dark />}
             {!hiddenLayers.fixed && <FixedSource p={p} />}
+            {toggle === 'coverage' && <AisBlindZone p={p} />}
+            {toggle === 'coverage' && <ReachabilityEllipse p={p} />}
           </svg>
 
           {/* The trap label: what the typical approach would answer. */}
@@ -180,6 +184,7 @@ export function AttributionScreen() {
               { id: 'coverage', label: "Where AIS couldn't see" },
               { id: 'dark', label: 'Dark & fixed' },
               { id: 'casefile', label: 'Case file' },
+              { id: 'sbs', label: 'Typical vs ours' },
             ]}
             value={toggle}
             onChange={setToggle}
@@ -192,6 +197,8 @@ export function AttributionScreen() {
               <DarkFixedPanel />
             ) : toggle === 'casefile' ? (
               <CaseFilePanel stoppedAt={fmtStep(outcome.stop.h)} threshold={threshold} />
+            ) : toggle === 'sbs' ? (
+              <AttributionSideBySide />
             ) : (
               <>
                 <InputsPanel upTo={st.stage1 - 1} />

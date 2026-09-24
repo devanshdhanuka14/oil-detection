@@ -22,12 +22,13 @@ import { BoxVsOutline } from './BoxVsOutline';
 import { BlindLayer, BrightTargetLayer, PatchLayer } from './PatchLayer';
 import { EliminationPanel, ProcessPanel } from './panels/ProcessPanel';
 import { BlindPanel, HandoffPanel } from './panels/HandoffPanel';
+import { DetectionSideBySide } from './panels/SideBySidePanel';
 import { RejectedPanel, SlickPanelS01 } from './panels/SlickPanel';
 
 const MAP_W = 1300;
 const MAP_H = 918;
 
-export const DETECTION_TOGGLES = ['blind', 'handoff'];
+export const DETECTION_TOGGLES = ['blind', 'handoff', 'sbs'];
 
 export function DetectionScreen() {
   const { mode, outlineLevel, setOutlineLevel, toggle, setToggle, selection, select, hiddenLayers, toggleLayer } = useApp();
@@ -82,7 +83,7 @@ export function DetectionScreen() {
             <RadarCanvas patches={imagePatches.all} blindRing={blind} p={p} width={MAP_W} height={MAP_H} />
           </div>
           <svg className="map-svg" viewBox={vb(view)} width={MAP_W} height={MAP_H}>
-            {!hiddenLayers.blind && toggle === 'blind' && <BlindLayer ring={blind} p={p} />}
+            {!hiddenLayers.blind && (toggle === 'blind' || toggle === 'sbs') && <BlindLayer ring={blind} p={p} />}
             {!hiddenLayers.outlines && (
               <PatchLayer
                 patches={patches.all
@@ -115,6 +116,7 @@ export function DetectionScreen() {
             options={[
               { id: 'blind', label: 'Blind areas' },
               { id: 'handoff', label: 'Hand-off' },
+              { id: 'sbs', label: 'Typical vs ours' },
             ]}
             value={toggle}
             onChange={setToggle}
@@ -125,6 +127,8 @@ export function DetectionScreen() {
               <BlindPanel />
             ) : toggle === 'handoff' ? (
               <HandoffPanel />
+            ) : toggle === 'sbs' ? (
+              <DetectionSideBySide />
             ) : (
               <>
                 <ProcessPanel upTo={st.processingLines - 1} />
