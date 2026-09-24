@@ -6,6 +6,8 @@ import { MODULE_ORDER, useApp, type ModuleId } from './shell/store';
 import { DetectionScreen, DETECTION_TOGGLES } from './modules/detection/DetectionScreen';
 import { BacktrackScreen, BACKTRACK_TOGGLES } from './modules/backtracking/BacktrackScreen';
 import { AttributionScreen, ATTRIBUTION_TOGGLES } from './modules/attribution/AttributionScreen';
+import { useFullCase } from './shell/PlayController';
+import { Transition } from './shell/Transition';
 
 export function App() {
   const module = useApp((s) => s.module);
@@ -17,6 +19,7 @@ export function App() {
     const want = location.hash.replace('#', '') as ModuleId;
     if (MODULE_ORDER.includes(want)) useApp.getState().setModule(want);
   }, []);
+  const { phase, progress } = useFullCase();
   const toggles = module === 'detection' ? DETECTION_TOGGLES : module === 'backtracking' ? BACKTRACK_TOGGLES : ATTRIBUTION_TOGGLES;
   useKeyboard(toggles);
 
@@ -30,6 +33,7 @@ export function App() {
       ) : (
         <AttributionScreen />
       )}
+      {phase?.kind === 'transition' && <Transition from={phase.from} to={phase.to} k={progress} />}
     </Stage1080>
   );
 }
