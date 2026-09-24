@@ -5,7 +5,7 @@
  * This step is the static end state (spec 3 §10 item 1).
  */
 import { useMemo, useRef } from 'react';
-import { attribution, backtrackAt, backtrackPoints, bbox, sar } from '../../data/scenario';
+import { attribution, backtracking, backtrackAt, backtrackPoints, bbox, sar } from '../../data/scenario';
 import { buildAisTracks } from '../../lib/generators/aisTracks';
 import { buildPatches } from '../../lib/generators/patches';
 import { distanceNm, makeProjection } from '../../map/projection';
@@ -14,6 +14,7 @@ import { useApp } from '../../shell/store';
 import { color } from '../../theme/tokens';
 import { LayerChips, StepSlider, ToggleBar } from '../../ui/controls';
 import { PanelScroll } from '../../ui/PanelScroll';
+import { StageSection } from '../../ui/StageSection';
 import { Basemap } from '../../map/Basemap';
 import { ringPath } from '../detection/PatchLayer';
 import { SourceLayer } from '../backtracking/CloudLayer';
@@ -29,6 +30,9 @@ import { CandidateCard, DarkCard, EliminatedCard, FixedCard, LeaderCard, NoneCar
 import { AisCoveragePanel, CaseFilePanel, DarkFixedPanel } from './panels/TogglePanels';
 import { AttributionSideBySide } from './panels/SideBySidePanel';
 import { AisBlindZone, ReachabilityEllipse } from './CoverageLayer';
+
+/** Tick lines in stage 1; the stage completes when all have landed. */
+const INPUT_LINES = 5;
 
 const MAP_W = 1300;
 const MAP_H = 918;
@@ -202,9 +206,38 @@ export function AttributionScreen() {
               <AttributionSideBySide />
             ) : (
               <>
-                <InputsPanel upTo={st.stage1 - 1} />
-                <FilterPanel groupsShown={st.groupsShown} />
-                {st.playhead > 0 && <LoopPanel outcome={outcome} threshold={threshold} currentH={h} />}
+                <StageSection
+                  id="at1"
+                  title="STAGE 1 · INPUTS RECEIVED"
+                  done={st.stage1 >= INPUT_LINES}
+                  summary={`slick S01 · ${backtrackPoints.length} backtrack points · ${backtracking.handoff.search_radius_nm['3sig']} nm`}
+                >
+                  <InputsPanel upTo={st.stage1 - 1} />
+                </StageSection>
+
+                <StageSection
+                  id="at2"
+                  title="STAGE 2 · AIS FILTER"
+                  done={st.groupsShown > attribution.filter_groups.length - 1}
+                  summary={`${attribution.counter.in_window} → ${attribution.counter.candidates}`}
+                >
+                  <FilterPanel groupsShown={st.groupsShown} />
+                </StageSection>
+
+                {st.playhead > 0 && (
+                  <StageSection
+                    id="at3"
+                    title="STAGE 3 · REWIND LOOP"
+                    done={st.showRanking}
+                    summary={
+                      outcome.conclusive
+                        ? `STOP at ${fmtStep(outcome.stop.h)} · ${Math.round((outcome.stop.p ?? 0) * 100)}%`
+                        : `${fmtStep(outcome.stop.h)} · not conclusive`
+                    }
+                  >
+                    <LoopPanel outcome={outcome} threshold={threshold} currentH={h} />
+                  </StageSection>
+                )}
                 {st.showRanking && (
                   <div data-payoff>
                     <Ranking onSelect={(id) => select({ kind: 'track', id })} selectedId={selection?.id ?? null} />

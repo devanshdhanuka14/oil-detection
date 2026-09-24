@@ -9,22 +9,26 @@ import { detection, sar } from '../../../data/scenario';
 import { fmtUtc } from '../../../lib/time';
 import { CountUp, TickLine } from '../../../ui/primitives';
 
-export function ProcessPanel({ upTo = 99 }: { upTo?: number }) {
-  const lines = [
+/** Spec 1 §5.1, in order. Hoisted so the stage knows when it has completed. */
+export const PROCESSING_STEPS = (): string[] => [
     'Orbit and geometry corrected',
     'Sensor noise removed, calibrated to decibels',
     'Pixels made square in metres (latitude-corrected)',
     'Speckle filtered',
     `Wind fetched for ${fmtUtc(sar.time_utc)} → ${sar.wind_ms} m/s from ${sar.wind_from_deg}°`,
     `Detectability computed → ${sar.observable_pct}% of area observable`,
-  ];
+];
+
+export const PROCESSING_LINES = PROCESSING_STEPS().length;
+
+export function ProcessPanel({ upTo = 99 }: { upTo?: number }) {
+  const lines = PROCESSING_STEPS();
   return (
-    <div className="block">
-      <div className="block__head">PROCESSING</div>
+    <>
       {lines.map((l, i) => (
         <TickLine key={i} shown={i <= upTo}>{l}</TickLine>
       ))}
-    </div>
+    </>
   );
 }
 
@@ -44,7 +48,7 @@ export function EliminationPanel({
   const oil = detection.groups.find((g) => g.id === 'oil')!;
 
   return (
-    <div className="block">
+    <>
       <div className={`block__found${showFound ? ' is-shown' : ''}`}>
         FOUND <CountUp to={detection.counter.from} run={animate} /> dark patches
       </div>
@@ -58,6 +62,6 @@ export function EliminationPanel({
       <TickLine kind="yes" shown={groupsShown > rejected.length}>
         <span className="count">{oil.count}</span> <strong>CONFIRMED OIL</strong>
       </TickLine>
-    </div>
+    </>
   );
 }

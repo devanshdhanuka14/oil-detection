@@ -14,6 +14,7 @@ import { useApp } from '../../shell/store';
 import { color } from '../../theme/tokens';
 import { LayerChips, StepSlider, ToggleBar } from '../../ui/controls';
 import { PanelScroll } from '../../ui/PanelScroll';
+import { StageSection } from '../../ui/StageSection';
 import { useTimeline } from '../../shell/timeline';
 import { lerpView, vb, viewOn, fullView } from '../../map/Camera';
 import { detectionTimeline } from './timeline';
@@ -21,7 +22,7 @@ import { OUTLINE_BEATS } from './timelineBeats';
 import { RadarCanvas } from './RadarCanvas';
 import { BoxVsOutline } from './BoxVsOutline';
 import { BlindLayer, BrightTargetLayer, PatchLayer } from './PatchLayer';
-import { EliminationPanel, ProcessPanel } from './panels/ProcessPanel';
+import { EliminationPanel, ProcessPanel, PROCESSING_LINES } from './panels/ProcessPanel';
 import { BlindPanel, HandoffPanel } from './panels/HandoffPanel';
 import { DetectionSideBySide } from './panels/SideBySidePanel';
 import { RejectedPanel, SlickPanelS01 } from './panels/SlickPanel';
@@ -132,21 +133,38 @@ export function DetectionScreen() {
               <DetectionSideBySide />
             ) : (
               <>
-                <ProcessPanel upTo={st.processingLines - 1} />
-                <EliminationPanel
-                  groupsShown={st.groupsShown}
-                  showFound={st.showFound}
-                  showMeasuring={st.showMeasuring}
-                  animate={mode !== 'explore'}
-                />
+                <StageSection
+                  id="processing"
+                  title="PROCESSING"
+                  done={st.processingLines >= PROCESSING_LINES}
+                  summary={`wind ${sar.wind_ms} m/s from ${sar.wind_from_deg}° · ${sar.observable_pct}% observable`}
+                >
+                  <ProcessPanel upTo={st.processingLines - 1} />
+                </StageSection>
+
+                <StageSection
+                  id="elimination"
+                  title="ELIMINATION"
+                  done={st.confirmed}
+                  summary={`${detection.counter.from} → ${detection.counter.to} · ${detection.counter.from - detection.counter.to} rejected`}
+                >
+                  <EliminationPanel
+                    groupsShown={st.groupsShown}
+                    showFound={st.showFound}
+                    showMeasuring={st.showMeasuring}
+                    animate={mode !== 'explore'}
+                  />
+                </StageSection>
                 {selected && selected.group !== 'oil' ? (
                   <RejectedPanel patch={selected} />
                 ) : st.showPanel ? (
-                  <SlickPanelS01
-                    areaKm2={areaKm2}
-                    level={outlineLevel}
-                    elongation={patches.byId.get('S01')!.elongation}
-                  />
+                  <div data-payoff>
+                    <SlickPanelS01
+                      areaKm2={areaKm2}
+                      level={outlineLevel}
+                      elongation={patches.byId.get('S01')!.elongation}
+                    />
+                  </div>
                 ) : null}
               </>
             )}

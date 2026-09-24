@@ -12,6 +12,7 @@ import { useApp } from '../../shell/store';
 import { color } from '../../theme/tokens';
 import { LayerChips, StepSlider, ToggleBar } from '../../ui/controls';
 import { PanelScroll } from '../../ui/PanelScroll';
+import { StageSection } from '../../ui/StageSection';
 import { Basemap } from '../../map/Basemap';
 import { ringPath } from '../detection/PatchLayer';
 import { ParticleCanvas } from './ParticleCanvas';
@@ -23,6 +24,9 @@ import { SourcePanel, UncertaintyPanel } from './panels/SourcePanel';
 import { BacktrackHandoffPanel, DataLimitsPanel, ForecastPanel } from './panels/TogglePanels';
 import { BacktrackSideBySide } from './panels/SideBySidePanel';
 import { DataLimitOverlay, ForecastLayer, SingleArrow } from './ForecastLayer';
+
+/** Tick lines in stages 1 and 2; both complete when all have landed. */
+const STAGE_LINES = 6;
 
 const MAP_W = 1300;
 const MAP_H = 918;
@@ -204,9 +208,34 @@ export function BacktrackScreen() {
               </>
             ) : (
               <>
-                <Stage1Panel upTo={st.stage1 - 1} />
-                <Stage2Panel upTo={st.stage2 - 1} />
-                <Stage3Panel refined={st.refinedShown} shown={st.stage2 >= 6} />
+                <StageSection
+                  id="bt1"
+                  title="STAGE 1 — AGE ESTIMATION"
+                  done={st.stage1 >= STAGE_LINES}
+                  summary={`${backtracking.age_window_h[0]}–${backtracking.age_window_h[1]} h · ${backtracking.hypotheses_h.join('/')} h tested`}
+                >
+                  <Stage1Panel upTo={st.stage1 - 1} />
+                </StageSection>
+
+                <StageSection
+                  id="bt2"
+                  title="STAGE 2 — FORCING DATA"
+                  done={st.stage2 >= STAGE_LINES}
+                  summary={`${backtracking.forcing.net_drift} · wind drift ${backtracking.forcing.wind_drift_factor_pct}%`}
+                >
+                  <Stage2Panel upTo={st.stage2 - 1} />
+                </StageSection>
+
+                {st.stage2 >= STAGE_LINES && (
+                  <StageSection
+                    id="bt3"
+                    title="STAGE 3 — BACKTRACKING"
+                    done={st.refinedShown}
+                    summary={`${backtracking.cloud_km2.before} → ${backtracking.cloud_km2.after} km² · FSS ${backtracking.fss} (baseline ${backtracking.fss_baseline})`}
+                  >
+                    <Stage3Panel refined={st.refinedShown} shown />
+                  </StageSection>
+                )}
                 {st.showPanel && (
                   <div data-payoff>
                     <SourcePanel />

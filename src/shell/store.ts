@@ -36,6 +36,8 @@ type State = {
   sigma: 1 | 2 | 3;
   /** Layer chips that are switched off, per module. */
   hiddenLayers: Record<string, boolean>;
+  /** Which completed stage the presenter has reopened; one at a time. */
+  expandedStage: string | null;
 
   setModule: (m: ModuleId) => void;
   setMode: (m: Mode) => void;
@@ -52,6 +54,7 @@ type State = {
   setAgeHypothesis: (a: 12 | 24 | 36 | null) => void;
   setSigma: (s: 1 | 2 | 3) => void;
   toggleLayer: (id: string) => void;
+  setExpandedStage: (id: string | null) => void;
   nextModule: () => void;
 };
 
@@ -68,11 +71,12 @@ export const useApp = create<State>((set, get) => ({
   ageHypothesis: null,
   sigma: 2,
   hiddenLayers: {},
+  expandedStage: null,
 
-  setModule: (module) => set({ module, beat: 0, toggle: null, selection: null }),
-  setMode: (mode) => set({ mode, paused: false, toggle: null, selection: null }),
+  setModule: (module) => set({ module, beat: 0, toggle: null, selection: null, expandedStage: null }),
+  setMode: (mode) => set({ mode, paused: false, toggle: null, selection: null, expandedStage: null }),
   togglePause: () => set((s) => ({ paused: !s.paused })),
-  restart: () => set({ beat: 0, paused: false, toggle: null, selection: null }),
+  restart: () => set({ beat: 0, paused: false, toggle: null, selection: null, expandedStage: null }),
   setBeat: (beat) => set({ beat }),
   stepBeat: (d) => set((s) => ({ beat: Math.max(0, s.beat + d), paused: true })),
   setToggle: (toggle) => set({ toggle }),
@@ -89,6 +93,7 @@ export const useApp = create<State>((set, get) => ({
   setAgeHypothesis: (ageHypothesis) => set({ ageHypothesis }),
   setSigma: (sigma) => set({ sigma }),
   toggleLayer: (id) => set((s) => ({ hiddenLayers: { ...s.hiddenLayers, [id]: !s.hiddenLayers[id] } })),
+  setExpandedStage: (expandedStage) => set({ expandedStage }),
   nextModule: () => {
     const i = MODULE_ORDER.indexOf(get().module);
     if (i < MODULE_ORDER.length - 1) get().setModule(MODULE_ORDER[i + 1]);

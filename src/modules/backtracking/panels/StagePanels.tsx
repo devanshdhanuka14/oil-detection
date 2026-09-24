@@ -13,8 +13,7 @@ export function Stage1Panel({ upTo = 99 }: { upTo?: number }) {
   const b = backtracking;
   const w = b.weights as Record<string, number>;
   return (
-    <div className="block">
-      <div className="block__head">STAGE 1 — AGE ESTIMATION</div>
+    <>
       <TickLine shown={upTo >= 0}>Slick area received: {detection.S01.area_km2} km²</TickLine>
       <TickLine shown={upTo >= 1}>
         Oil type: HFO (reported: {detection.S01.oil_type_reported}) → spreading constant C = {b.spreading_C}
@@ -28,15 +27,14 @@ export function Stage1Panel({ upTo = 99 }: { upTo?: number }) {
       <TickLine shown={upTo >= 5}>
         Weights: 24 h most likely ({w['24'].toFixed(2)}), 36 h next ({w['36'].toFixed(2)})
       </TickLine>
-    </div>
+    </>
   );
 }
 
 export function Stage2Panel({ upTo = 99 }: { upTo?: number }) {
   const f = backtracking.forcing;
   return (
-    <div className="block">
-      <div className="block__head">STAGE 2 — FORCING DATA</div>
+    <>
       <TickLine shown={upTo >= 0}>HYCOM ocean currents → {f.current} at source region</TickLine>
       <TickLine shown={upTo >= 1}>ERA5 wind → {f.wind} at source region</TickLine>
       <TickLine shown={upTo >= 2}>CMEMS Stokes drift → {f.stokes} (wave-driven)</TickLine>
@@ -47,7 +45,7 @@ export function Stage2Panel({ upTo = 99 }: { upTo?: number }) {
       <TickLine shown={upTo >= 5}>
         Forcing window → {fmtUtc(f.window_utc[0])} → {fmtUtc(f.window_utc[1])}
       </TickLine>
-    </div>
+    </>
   );
 }
 
@@ -60,8 +58,7 @@ export function Stage3Panel({ refined, shown = true }: { refined: boolean; shown
   if (!shown) return null;
 
   return (
-    <div className="block">
-      <div className="block__head">STAGE 3 — BACKTRACKING</div>
+    <>
 
       <div className="stage3__run">
         <div>{b.particles.total} particles run backward <span className="muted">({b.particles.per_hypothesis} per age hypothesis)</span></div>
@@ -106,6 +103,6 @@ export function Stage3Panel({ refined, shown = true }: { refined: boolean; shown
           Source cloud refined: {b.cloud_km2.before} km² → <strong>{b.cloud_km2.after} km²</strong>
         </div>
       )}
-    </div>
+    </>
   );
 }

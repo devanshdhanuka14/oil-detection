@@ -15,8 +15,7 @@ export function InputsPanel({ upTo = 99 }: { upTo?: number }) {
   const w = backtracking.handoff.ais_window_utc;
   const nearest = detection.bright_targets.find((t) => t.note)!;
   return (
-    <div className="block">
-      <div className="block__head">STAGE 1 · INPUTS RECEIVED</div>
+    <>
       <TickLine shown={upTo >= 0}>From detection: slick S01 outline · SAR time {fmtUtc(sar.time_utc)}</TickLine>
       <TickLine shown={upTo >= 1}>
         From detection: {detection.bright_targets.length} radar bright targets ({nearest.note})
@@ -28,7 +27,7 @@ export function InputsPanel({ upTo = 99 }: { upTo?: number }) {
       <TickLine shown={upTo >= 4}>
         AIS window: {fmtUtc(w[0])} → {fmtUtc(w[1])} · radius {backtracking.handoff.search_radius_nm['3sig']} nm
       </TickLine>
-    </div>
+    </>
   );
 }
 
@@ -36,8 +35,7 @@ export function FilterPanel({ groupsShown }: { groupsShown: number }) {
   const rejected = attribution.filter_groups.filter((g) => g.id !== 'cand');
   const cand = attribution.filter_groups.find((g) => g.id === 'cand')!;
   return (
-    <div className="block">
-      <div className="block__head">STAGE 2 · AIS FILTER</div>
+    <>
       <div className="block__found is-shown">FOUND {attribution.counter.in_window} vessels in the window</div>
       {rejected.map((g, i) => (
         <TickLine key={g.id} kind="no" shown={i < groupsShown}>
@@ -47,7 +45,7 @@ export function FilterPanel({ groupsShown }: { groupsShown: number }) {
       <TickLine kind="yes" shown={groupsShown > rejected.length}>
         <span className="count">{cand.count}</span> <strong>CANDIDATES</strong> enter the rewind loop
       </TickLine>
-    </div>
+    </>
   );
 }
 
@@ -74,8 +72,7 @@ export function LoopPanel({
   const stopped = currentH >= outcome.stop.h;
 
   return (
-    <div className="block">
-      <div className="block__head">STAGE 3 · REWIND LOOP</div>
+    <>
       <div className="loop__rule">
         stop when all three hold: leader ≥ {Math.round(threshold * 100)}% · margin ≥{' '}
         {Math.round(rule.min_margin * 100)} pts · point confidence ≥ {rule.point_conf_floor.toFixed(2)}
@@ -132,7 +129,7 @@ export function LoopPanel({
       )}
 
       {stopped && <StopLine outcome={outcome} threshold={threshold} />}
-    </div>
+    </>
   );
 }
 
