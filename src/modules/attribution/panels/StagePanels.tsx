@@ -10,22 +10,22 @@ import { fmtStep, fmtUtc } from '../../../lib/time';
 import { Meter, TickLine } from '../../../ui/primitives';
 import type { Outcome, Step } from '../stopRule';
 
-export function InputsPanel() {
+export function InputsPanel({ upTo = 99 }: { upTo?: number }) {
   const s = backtracking.source;
   const w = backtracking.handoff.ais_window_utc;
   const nearest = detection.bright_targets.find((t) => t.note)!;
   return (
     <div className="block">
       <div className="block__head">STAGE 1 · INPUTS RECEIVED</div>
-      <TickLine>From detection: slick S01 outline · SAR time {fmtUtc(sar.time_utc)}</TickLine>
-      <TickLine>
+      <TickLine shown={upTo >= 0}>From detection: slick S01 outline · SAR time {fmtUtc(sar.time_utc)}</TickLine>
+      <TickLine shown={upTo >= 1}>
         From detection: {detection.bright_targets.length} radar bright targets ({nearest.note})
       </TickLine>
-      <TickLine>From drift: backtrack points every {backtracking.particles.output_min} min, each with a confidence</TickLine>
-      <TickLine>
+      <TickLine shown={upTo >= 2}>From drift: backtrack points every {backtracking.particles.output_min} min, each with a confidence</TickLine>
+      <TickLine shown={upTo >= 3}>
         From drift: source {s.lat.toFixed(2)}° N, {s.lon.toFixed(2)}° E ± {s.sigma_2sig_nm} nm (2σ) · {fmtUtc(s.time_utc)}
       </TickLine>
-      <TickLine>
+      <TickLine shown={upTo >= 4}>
         AIS window: {fmtUtc(w[0])} → {fmtUtc(w[1])} · radius {backtracking.handoff.search_radius_nm['3sig']} nm
       </TickLine>
     </div>

@@ -21,6 +21,7 @@ export function AisCanvas({
   leaderId,
   highlightId,
   showCandidates,
+  reveal = 1,
 }: {
   set: AisSet;
   p: Projection;
@@ -31,6 +32,8 @@ export function AisCanvas({
   leaderId?: string | null;
   highlightId?: string | null;
   showCandidates: boolean;
+  /** 0-1: how much of the fleet has drawn on. */
+  reveal?: number;
 }) {
   const ref = useRef<HTMLCanvasElement>(null);
 
@@ -43,8 +46,9 @@ export function AisCanvas({
 
     // Draw eliminated first, candidates over them, leader last.
     const order = [...set.all].sort((a, b) => rank(a.group) - rank(b.group));
+    const shownCount = Math.ceil(order.length * Math.max(0, Math.min(1, reveal)));
 
-    for (const t of order) {
+    for (const t of order.slice(0, shownCount)) {
       const isLeader = t.id === leaderId;
       const isCand = t.group === 'cand' && showCandidates;
       const dim = eliminated.has(t.group);
@@ -90,7 +94,7 @@ export function AisCanvas({
       ctx.stroke();
     }
     ctx.globalAlpha = 1;
-  }, [set, p, width, height, eliminated, inCircle, leaderId, highlightId, showCandidates]);
+  }, [set, p, width, height, eliminated, inCircle, leaderId, highlightId, showCandidates, reveal]);
 
   return <canvas ref={ref} width={width} height={height} className="ais-canvas" />;
 }

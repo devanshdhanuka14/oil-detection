@@ -18,6 +18,9 @@ import { ringPath } from '../detection/PatchLayer';
 import { SourceLayer } from '../backtracking/CloudLayer';
 import { AisCanvas, pickTrack } from './AisCanvas';
 import { BacktrackDots, BrightTargets, FixedSource, SearchCircle } from './LoopLayer';
+import { useTimeline } from '../../shell/timeline';
+import { lerpView, vb, viewOn, fullView } from '../../map/Camera';
+import { attributionTimeline, EVIDENCE_BEATS } from './timeline';
 import { runLoop } from './stopRule';
 import { FilterPanel, InputsPanel, LoopPanel } from './panels/StagePanels';
 import { Ranking } from './panels/Ranking';
@@ -38,9 +41,30 @@ export function AttributionScreen() {
   const s01 = useMemo(() => buildPatches('expected').byId.get('S01')!, []);
   const outcome = useMemo(() => runLoop(threshold), [threshold]);
 
-  // The static end state sits at the stop step unless the scrubber moved.
-  const h = loopHours || outcome.stop.h;
+  const tlSpec = useMemo(() => attributionTimeline(outcome.stop.h), [outcome.stop.h]);
+  const tl = useTimeline(tlSpec, [outcome.stop.h]);
+  const st = tl.state;
+
+  // One clock: the timeline's playhead, or the scrubber once the presenter
+  // drags it. The circle, the table, the meters and the ranking all read this.
+  const h = loopHours || st.playhead;
+
+  // The ✗ lines and the dimmed tracks share one counter, so the map can never
+  // dim a different number of tracks than the log claims.
+  const rejectedGroups = attribution.filter_groups.filter((g) => g.id !== 'cand');
+  const eliminated = new Set(
+    rejectedGroups.slice(0, st.groupsShown).map((g) => g.id as 'reach' | 'time' | 'port'),
+  );
+
+  const wide = useMemo(() => fullView(p), [p]);
+  const onLoop = useMemo(
+    () => viewOn(p, backtrackAt(outcome.stop.h).lat, backtrackAt(outcome.stop.h).lon, 46),
+    [p, outcome.stop.h],
+  );
+  const view = lerpView(wide, onLoop, st.camera);
+  const evidenceBeat = Math.min(EVIDENCE_BEATS.length - 1, Math.floor(st.evidence));
   const leaderTrack = ais.all.find((t) => t.vesselKey === outcome.stop.leader) ?? null;
+  const trapTrack = ais.all.find((t) => t.vesselKey === 'V-TESSERA') ?? null;
 
   // Which candidates are inside the search circle right now.
   const q = backtrackAt(h);
@@ -86,7 +110,7 @@ export function AttributionScreen() {
 
       <div className="screen__body">
         <div className="screen__map">
-          <svg className="map-svg" viewBox={`0 0 ${MAP_W} ${MAP_H}`} width={MAP_W} height={MAP_H}>
+          <svg className="map-svg" viewBox={vb(view)} width={MAP_W} height={MAP_H}>
             <Basemap p={p} />
           </svg>
 
@@ -96,24 +120,26 @@ export function AttributionScreen() {
               p={p}
               width={MAP_W}
               height={MAP_H}
-              eliminated={new Set(['reach', 'time', 'port'] as const)}
+              eliminated={eliminated}
               inCircle={inCircle}
-              leaderId={leaderTrack?.id ?? null}
+              leaderId={st.leader ? (leaderTrack?.id ?? null) : null}
+              highlightId={st.trap > 0.5 ? (trapTrack?.id ?? null) : null}
               showCandidates={!hiddenLayers.candidates}
+              reveal={st.tracks}
             />
           )}
 
           <svg
             ref={svgRef}
             className="map-svg"
-            viewBox={`0 0 ${MAP_W} ${MAP_H}`}
+            viewBox={vb(view)}
             width={MAP_W}
             height={MAP_H}
             onClick={onMapClick}
             style={{ cursor: 'pointer' }}
           >
             {!hiddenLayers.path && <BacktrackDots p={p} upToH={h} />}
-            {!hiddenLayers.circle && <SearchCircle p={p} h={h} />}
+            {!hiddenLayers.circle && <SearchCircle p={p} h={h} flash={st.flash} />}
 
             {(s01.fragments ?? [s01.ring]).map((ring, i) => (
               <path key={i} d={ringPath(ring, p)} fill={color.oil} fillOpacity={0.2} stroke={color.oil} strokeWidth={1.6} />
@@ -123,6 +149,29 @@ export function AttributionScreen() {
             {!hiddenLayers.dark && <BrightTargets p={p} dark />}
             {!hiddenLayers.fixed && <FixedSource p={p} />}
           </svg>
+
+          {/* The trap label: what the typical approach would answer. */}
+          {st.trap > 0.5 && (
+            <div className="trap-label">typical approach: nearest ship = polluter</div>
+          )}
+
+          {/* The four evidence beats on the leader. */}
+          {st.evidence > 0 && st.evidence < 4 && (
+            <div className="beat-caption">
+              <span className="beat-caption__n">{evidenceBeat + 1}/{EVIDENCE_BEATS.length}</span>
+              <span className="beat-caption__title">{EVIDENCE_BEATS[evidenceBeat].title}</span>
+              <span className="beat-caption__text">{EVIDENCE_BEATS[evidenceBeat].caption}</span>
+            </div>
+          )}
+          {st.evidence >= 4 && (
+            <div className="beat-caption">
+              <span className="beat-caption__title">coverage</span>
+              <span className="beat-caption__text">
+                explains {Math.round(attribution.vessels['V-A'].coverage * 100)}% of the slick's
+                particles — most of the slick, not one corner
+              </span>
+            </div>
+          )}
         </div>
 
         <aside className="screen__panel">
@@ -145,11 +194,15 @@ export function AttributionScreen() {
               <CaseFilePanel stoppedAt={fmtStep(outcome.stop.h)} threshold={threshold} />
             ) : (
               <>
-                <InputsPanel />
-                <FilterPanel groupsShown={4} />
-                <LoopPanel outcome={outcome} threshold={threshold} currentH={h} />
-                <Ranking onSelect={(id) => select({ kind: 'track', id })} selectedId={selection?.id ?? null} />
-                <SelectedCard ais={ais} />
+                <InputsPanel upTo={st.stage1 - 1} />
+                <FilterPanel groupsShown={st.groupsShown} />
+                {st.playhead > 0 && <LoopPanel outcome={outcome} threshold={threshold} currentH={h} />}
+                {st.showRanking && (
+                  <>
+                    <Ranking onSelect={(id) => select({ kind: 'track', id })} selectedId={selection?.id ?? null} />
+                    <SelectedCard ais={ais} />
+                  </>
+                )}
               </>
             )}
           </div>

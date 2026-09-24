@@ -33,7 +33,7 @@ export function BacktrackDots({ p, upToH }: { p: Projection; upToH: number }) {
 }
 
 /** The search circle: cyan, dashed, sized by the point's own 2σ radius. */
-export function SearchCircle({ p, h }: { p: Projection; h: number }) {
+export function SearchCircle({ p, h, flash = 0 }: { p: Projection; h: number; flash?: number }) {
   const q = backtrackAt(h);
   const c = p.project(q.lat, q.lon);
   const r = nmToUnits(p, q.radius_2sig_nm);
@@ -46,8 +46,9 @@ export function SearchCircle({ p, h }: { p: Projection; h: number }) {
         fill={color.searchCircle}
         fillOpacity={alpha.searchCircleFill}
         stroke={color.searchCircle}
-        strokeWidth={1.8}
+        strokeWidth={1.8 + flash * 2.4}
         strokeDasharray="7 5"
+        opacity={1}
       />
       <circle cx={c.x} cy={c.y} r={3} fill={color.searchCircle} />
     </g>

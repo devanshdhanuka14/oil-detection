@@ -15,6 +15,8 @@ import { Basemap } from '../../map/Basemap';
 import { ringPath } from '../detection/PatchLayer';
 import { ParticleCanvas } from './ParticleCanvas';
 import { BacktrackPath, CloudLayer, SourceLayer } from './CloudLayer';
+import { useTimeline } from '../../shell/timeline';
+import { backtrackTimeline } from './timeline';
 import { Stage1Panel, Stage2Panel, Stage3Panel } from './panels/StagePanels';
 import { SourcePanel, UncertaintyPanel } from './panels/SourcePanel';
 import { BacktrackHandoffPanel, DataLimitsPanel, ForecastPanel } from './panels/TogglePanels';
@@ -34,6 +36,18 @@ export function BacktrackScreen() {
     [particles],
   );
   const s01 = useMemo(() => buildPatches('expected').byId.get('S01')!, []);
+
+  const tl = useTimeline(backtrackTimeline);
+  const st = tl.state;
+
+  // The refined ellipse's area, tweened from 340 to 18 km2. `cloud` goes 1 -> 0
+  // at the same instant the "refined by forward match" line appears, so the
+  // compression and the line are one moment.
+  const cloudScale = Math.sqrt(
+    ((backtracking.cloud_km2.after +
+      (backtracking.cloud_km2.before - backtracking.cloud_km2.after) * st.cloud) /
+      backtracking.cloud_km2.before),
+  );
 
   const showUncertainty = selection?.kind === 'ellipse';
 
@@ -60,10 +74,21 @@ export function BacktrackScreen() {
               the particles and the refined ellipse so one frame carries the
               whole 340 -> 18 km2 story, which is what the counter promises.
             */}
-            {!hiddenLayers.cloud && <CloudLayer hull={hull} p={p} />}
+            {!hiddenLayers.cloud && st.cloudShown > 0 && (
+              <CloudLayer hull={hull} p={p} opacity={0.4 * st.cloudShown} scale={cloudScale} />
+            )}
           </svg>
-          {!hiddenLayers.particles && (
-            <ParticleCanvas set={particles} p={p} width={MAP_W} height={MAP_H} ageFilter={ageHypothesis} />
+          {!hiddenLayers.particles && st.trails > 0 && (
+            <div className="layer-wrap" style={{ opacity: st.trails }}>
+              <ParticleCanvas
+                set={particles}
+                p={p}
+                width={MAP_W}
+                height={MAP_H}
+                progress={st.rewind}
+                ageFilter={ageHypothesis}
+              />
+            </div>
           )}
           <svg className="map-svg" viewBox={`0 0 ${MAP_W} ${MAP_H}`} width={MAP_W} height={MAP_H}>
             {!hiddenLayers.path && <BacktrackPath p={p} points={backtrackPoints} />}
@@ -74,9 +99,12 @@ export function BacktrackScreen() {
             ))}
 
             {/* Spec 2 §11: the pin is never drawn without the 1σ ellipse. */}
-            {!hiddenLayers.source && (
-              <g onClick={() => select({ kind: 'ellipse', id: 'source' })} style={{ cursor: 'pointer' }}>
-                <SourceLayer p={p} sigma={sigma} />
+            {!hiddenLayers.source && st.ellipse > 0 && (
+              <g
+                onClick={() => select({ kind: 'ellipse', id: 'source' })}
+                style={{ cursor: 'pointer', opacity: st.ellipse }}
+              >
+                <SourceLayer p={p} sigma={sigma} showPin={st.pin > 0} />
               </g>
             )}
           </svg>
@@ -107,10 +135,10 @@ export function BacktrackScreen() {
               </>
             ) : (
               <>
-                <Stage1Panel />
-                <Stage2Panel />
-                <Stage3Panel refined />
-                <SourcePanel />
+                <Stage1Panel upTo={st.stage1 - 1} />
+                <Stage2Panel upTo={st.stage2 - 1} />
+                <Stage3Panel refined={st.refinedShown} shown={st.stage2 >= 6} />
+                {st.showPanel && <SourcePanel />}
               </>
             )}
           </div>

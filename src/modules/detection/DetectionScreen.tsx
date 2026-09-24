@@ -5,7 +5,7 @@
  * This step builds the static end state (spec 1 §10 item 1). The elimination
  * animation is driven by the same `stage` props in the next step.
  */
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { bbox, detection, sar } from '../../data/scenario';
 import { buildBlindZone, buildPatches, type PatchGroup } from '../../lib/generators/patches';
 import { makeProjection } from '../../map/projection';
@@ -13,7 +13,12 @@ import { fmtUtc } from '../../lib/time';
 import { useApp } from '../../shell/store';
 import { color } from '../../theme/tokens';
 import { LayerChips, StepSlider, ToggleBar } from '../../ui/controls';
+import { useTimeline } from '../../shell/timeline';
+import { lerpView, vb, viewOn, fullView } from '../../map/Camera';
+import { detectionTimeline } from './timeline';
+import { OUTLINE_BEATS } from './timelineBeats';
 import { RadarCanvas } from './RadarCanvas';
+import { BoxVsOutline } from './BoxVsOutline';
 import { BlindLayer, BrightTargetLayer, PatchLayer } from './PatchLayer';
 import { EliminationPanel, ProcessPanel } from './panels/ProcessPanel';
 import { BlindPanel, HandoffPanel } from './panels/HandoffPanel';
@@ -25,8 +30,7 @@ const MAP_H = 918;
 export const DETECTION_TOGGLES = ['blind', 'handoff'];
 
 export function DetectionScreen() {
-  const { outlineLevel, setOutlineLevel, toggle, setToggle, selection, select, hiddenLayers, toggleLayer } = useApp();
-  const [animate] = useState(false);
+  const { mode, outlineLevel, setOutlineLevel, toggle, setToggle, selection, select, hiddenLayers, toggleLayer } = useApp();
 
   const p = useMemo(() => makeProjection(bbox.detection, MAP_W, MAP_H), []);
   // The outline-confidence slider changes our *outline*, not the scene. The
@@ -36,8 +40,22 @@ export function DetectionScreen() {
   const patches = useMemo(() => buildPatches(outlineLevel), [outlineLevel]);
   const blind = useMemo(() => buildBlindZone(), []);
 
-  // Static end state: every group eliminated, the 2 confirmed.
-  const eliminated = new Set<PatchGroup>(['fuzzy', 'blobby', 'noise']);
+  const tl = useTimeline(detectionTimeline);
+  const st = tl.state;
+
+  // The ✗ lines and the dimmed outlines are driven by the same counter, so the
+  // picture always dims exactly the groups the log has announced.
+  const rejectedGroups = detection.groups.filter((g) => g.id !== 'oil');
+  const eliminated = new Set<PatchGroup>(
+    rejectedGroups.slice(0, st.groupsShown).map((g) => g.id as PatchGroup),
+  );
+
+  // Scripted camera: wide, then in on S01 for the outline beats, then out.
+  const wide = useMemo(() => fullView(p), [p]);
+  const onS01 = useMemo(() => viewOn(p, detection.S01.centre[0], detection.S01.centre[1], 11), [p]);
+  const view = lerpView(wide, onS01, st.zoom);
+  const zoomBeat = Math.min(OUTLINE_BEATS.length - 1, Math.floor(st.zoomBeat));
+
   const areaKm2 =
     outlineLevel === 'tight'
       ? detection.S01.outline_levels.tight_km2
@@ -60,15 +78,19 @@ export function DetectionScreen() {
 
       <div className="screen__body">
         <div className="screen__map">
-          <RadarCanvas patches={imagePatches.all} blindRing={blind} p={p} width={MAP_W} height={MAP_H} />
-          <svg className="map-svg" viewBox={`0 0 ${MAP_W} ${MAP_H}`} width={MAP_W} height={MAP_H}>
+          <div className="radar-wrap" style={{ opacity: st.radar }}>
+            <RadarCanvas patches={imagePatches.all} blindRing={blind} p={p} width={MAP_W} height={MAP_H} />
+          </div>
+          <svg className="map-svg" viewBox={vb(view)} width={MAP_W} height={MAP_H}>
             {!hiddenLayers.blind && toggle === 'blind' && <BlindLayer ring={blind} p={p} />}
             {!hiddenLayers.outlines && (
               <PatchLayer
-                patches={patches.all.filter((x) => (x.group === 'oil' ? !hiddenLayers.oil : !hiddenLayers.lookalike))}
+                patches={patches.all
+                  .filter((x) => (x.group === 'oil' ? !hiddenLayers.oil : !hiddenLayers.lookalike))
+                  .slice(0, Math.ceil(patches.all.length * st.outlines))}
                 p={p}
                 eliminated={eliminated}
-                confirmed
+                confirmed={st.confirmed}
                 selectedId={selected?.id ?? null}
                 onSelect={(id) => select({ kind: 'patch', id })}
                 interactive
@@ -76,6 +98,16 @@ export function DetectionScreen() {
             )}
             {!hiddenLayers.bt && <BrightTargetLayer targets={detection.bright_targets} p={p} />}
           </svg>
+
+          {/* The four outline-building beats, and the box-vs-outline inset. */}
+          {st.zoom > 0.5 && (
+            <div className="beat-caption">
+              <span className="beat-caption__n">{zoomBeat + 1}/{OUTLINE_BEATS.length}</span>
+              <span className="beat-caption__title">{OUTLINE_BEATS[zoomBeat].title}</span>
+              <span className="beat-caption__text">{OUTLINE_BEATS[zoomBeat].caption}</span>
+            </div>
+          )}
+          {st.zoom > 0.5 && zoomBeat === OUTLINE_BEATS.length - 1 && <BoxVsOutline />}
         </div>
 
         <aside className="screen__panel">
@@ -95,13 +127,18 @@ export function DetectionScreen() {
               <HandoffPanel />
             ) : (
               <>
-                <ProcessPanel />
-                <EliminationPanel groupsShown={4} showFound showMeasuring={false} animate={animate} />
+                <ProcessPanel upTo={st.processingLines - 1} />
+                <EliminationPanel
+                  groupsShown={st.groupsShown}
+                  showFound={st.showFound}
+                  showMeasuring={st.showMeasuring}
+                  animate={mode !== 'explore'}
+                />
                 {selected && selected.group !== 'oil' ? (
                   <RejectedPanel patch={selected} />
-                ) : (
+                ) : st.showPanel ? (
                   <SlickPanelS01 areaKm2={areaKm2} level={outlineLevel} />
-                )}
+                ) : null}
               </>
             )}
           </div>

@@ -9,54 +9,56 @@ import { backtracking, detection } from '../../../data/scenario';
 import { fmtUtc } from '../../../lib/time';
 import { TickLine } from '../../../ui/primitives';
 
-export function Stage1Panel() {
+export function Stage1Panel({ upTo = 99 }: { upTo?: number }) {
   const b = backtracking;
   const w = b.weights as Record<string, number>;
   return (
     <div className="block">
       <div className="block__head">STAGE 1 — AGE ESTIMATION</div>
-      <TickLine>Slick area received: {detection.S01.area_km2} km²</TickLine>
-      <TickLine>
+      <TickLine shown={upTo >= 0}>Slick area received: {detection.S01.area_km2} km²</TickLine>
+      <TickLine shown={upTo >= 1}>
         Oil type: HFO (reported: {detection.S01.oil_type_reported}) → spreading constant C = {b.spreading_C}
       </TickLine>
-      <TickLine>
+      <TickLine shown={upTo >= 2}>
         Fay inversion: spill is {b.fay_h[0]}–{b.fay_h[1]} h old{' '}
         <span className="muted">(volume {detection.S01.volume_m3[0]}–{detection.S01.volume_m3[1]} m³ assumed)</span>
       </TickLine>
-      <TickLine>SAR shape: elongated, not yet fragmented → confirms {b.morphology}</TickLine>
-      <TickLine>Age window finalised: {b.hypotheses_h.join(' h · ')} h</TickLine>
-      <TickLine>
+      <TickLine shown={upTo >= 3}>SAR shape: elongated, not yet fragmented → confirms {b.morphology}</TickLine>
+      <TickLine shown={upTo >= 4}>Age window finalised: {b.hypotheses_h.join(' h · ')} h</TickLine>
+      <TickLine shown={upTo >= 5}>
         Weights: 24 h most likely ({w['24'].toFixed(2)}), 36 h next ({w['36'].toFixed(2)})
       </TickLine>
     </div>
   );
 }
 
-export function Stage2Panel() {
+export function Stage2Panel({ upTo = 99 }: { upTo?: number }) {
   const f = backtracking.forcing;
   return (
     <div className="block">
       <div className="block__head">STAGE 2 — FORCING DATA</div>
-      <TickLine>HYCOM ocean currents → {f.current} at source region</TickLine>
-      <TickLine>ERA5 wind → {f.wind} at source region</TickLine>
-      <TickLine>CMEMS Stokes drift → {f.stokes} (wave-driven)</TickLine>
-      <TickLine>
+      <TickLine shown={upTo >= 0}>HYCOM ocean currents → {f.current} at source region</TickLine>
+      <TickLine shown={upTo >= 1}>ERA5 wind → {f.wind} at source region</TickLine>
+      <TickLine shown={upTo >= 2}>CMEMS Stokes drift → {f.stokes} (wave-driven)</TickLine>
+      <TickLine shown={upTo >= 3}>
         Wind drift factor → {f.wind_drift_factor_pct}% <span className="muted">(HFO: thick slick, low wind coupling)</span>
       </TickLine>
-      <TickLine>Ekman deflection → {f.ekman_deg}° to right of wind</TickLine>
-      <TickLine>
+      <TickLine shown={upTo >= 4}>Ekman deflection → {f.ekman_deg}° to right of wind</TickLine>
+      <TickLine shown={upTo >= 5}>
         Forcing window → {fmtUtc(f.window_utc[0])} → {fmtUtc(f.window_utc[1])}
       </TickLine>
     </div>
   );
 }
 
-export function Stage3Panel({ refined }: { refined: boolean }) {
+export function Stage3Panel({ refined, shown = true }: { refined: boolean; shown?: boolean }) {
   const b = backtracking;
   const c = b.centroids as Record<string, number[]>;
   const w = b.weights as Record<string, number>;
   // Which hypothesis is "best weighted" follows from the weights, not a literal.
   const best = b.hypotheses_h.reduce((a, h) => (w[String(h)] > w[String(a)] ? h : a), b.hypotheses_h[0]);
+  if (!shown) return null;
+
   return (
     <div className="block">
       <div className="block__head">STAGE 3 — BACKTRACKING</div>

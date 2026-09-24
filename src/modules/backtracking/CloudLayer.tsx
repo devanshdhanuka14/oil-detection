@@ -8,9 +8,26 @@ import { backtracking } from '../../data/scenario';
 import { nmToUnits, type Projection } from '../../map/projection';
 import { alpha, color } from '../../theme/tokens';
 
-export function CloudLayer({ hull, p, opacity = alpha.sourceCloudFill }: { hull: [number, number][]; p: Projection; opacity?: number }) {
+export function CloudLayer({
+  hull,
+  p,
+  opacity = alpha.sourceCloudFill,
+  /** 1 = the full 340 km2 cloud; the shrink tweens this toward the 18 km2 area. */
+  scale = 1,
+}: {
+  hull: [number, number][];
+  p: Projection;
+  opacity?: number;
+  scale?: number;
+}) {
+  // Shrink about the refined source, so the cloud collapses onto the answer.
+  const s = backtracking.source;
+  const shaped: [number, number][] = hull.map(([lat, lon]) => [
+    s.lat + (lat - s.lat) * scale,
+    s.lon + (lon - s.lon) * scale,
+  ]);
   const d =
-    hull
+    shaped
       .map(([lat, lon], i) => {
         const q = p.project(lat, lon);
         return `${i === 0 ? 'M' : 'L'}${q.x.toFixed(1)},${q.y.toFixed(1)}`;
