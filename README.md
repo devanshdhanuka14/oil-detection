@@ -49,11 +49,29 @@ particle trail; drag the rewind scrubber; move the threshold slider.
    time, which arrived 16 h after the oil. Then set the threshold to 80% and the
    system says it cannot reach an answer.
 
+## Tests
+
+```
+npm test
+```
+
+Two mechanical checks, both of which have caught real bugs:
+
+- `check:geometry` — the drawn S01 outline must carry the area the panel claims,
+  at all three outline levels, over the stated 18.0 km extent, reaching the
+  fresh end and the tail, with `box_vs_outline` equal to its own bounding box.
+- `audit:numbers` — no component may hold a scenario number.
+
 ## Where the numbers come from
 
 `src/data/scenario.json` is the single source of truth. No component holds a
 scenario number; `npm run audit:numbers` checks that mechanically and fails on
 any literal that matches a value in the JSON.
+
+The S01 fragment widths are *solved* rather than assumed: the generator bisects
+a width scale until the drawn polygon's area equals the stated area for that
+outline level. Extent, fragment count and the two end positions are fixed by
+the spec, so width is the only free parameter.
 
 `src/data/coastline.geojson` was built once from Natural Earth 10 m land by
 `scripts/make-coastline.ts` and committed. That script is kept for provenance

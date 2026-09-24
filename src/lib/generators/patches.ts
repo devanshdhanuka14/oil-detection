@@ -80,31 +80,142 @@ function ellipseRing(
   return ring;
 }
 
-/** S01, from scenario.detection.S01: 18.0 km x 690 m along 135°, 3 fragments. */
-function buildS01(level: 'tight' | 'expected' | 'generous'): Patch {
-  const s = detection.S01;
-  const rand = stream('patch:S01').next;
-  const areas = s.outline_levels;
-  const area = level === 'tight' ? areas.tight_km2 : level === 'generous' ? areas.generous_km2 : areas.expected_km2;
-  // Width scales with the outline level; length is measured head-to-tail and fixed.
-  const widthKm = (s.width_m / 1000) * (area / areas.expected_km2);
+/**
+ * A stadium: a rectangle of length `lengthKm` along `bearing` with semicircular
+ * ends of radius width/2, plus a seeded wobble.
+ *
+ * An ellipse is only pi/4 of its bounding box, so elliptical fragments could
+ * not carry the stated area over the stated extent. A slick fragment is closer
+ * to a stadium anyway: elongated with rounded ends, not a lens.
+ */
+function stadiumRing(
+  centre: [number, number],
+  lengthKm: number,
+  widthKm: number,
+  bearingDeg: number,
+  wobble: number,
+  rand: () => number,
+  steps = 64,
+): [number, number][] {
+  const w = Math.min(widthKm, lengthKm * 0.98);
+  const r = w / 2;
+  const straight = Math.max(0, lengthKm - w) / 2;
 
-  const fragments: [number, number][][] = [];
-  // 3 fragments strung along the 135° axis between the fresh end and the tail.
-  const gaps = [
-    [-0.5, -0.09],
-    [-0.04, 0.16],
-    [0.21, 0.5],
-  ];
-  for (let i = 0; i < s.fragments; i++) {
-    const [a, b] = gaps[i];
+  // One seeded harmonic set per ring, so the edge wanders smoothly.
+  const h = Array.from({ length: 4 }, () => ({ a: rand() * wobble, ph: rand() * Math.PI * 2 }));
+  const wob = (t: number) => {
+    let k = 1;
+    h.forEach((x, i) => { k += x.a * Math.sin((i + 2) * t + x.ph); });
+    return k;
+  };
+
+  const ring: [number, number][] = [];
+  const cap = Math.max(6, Math.round(steps / 4));
+  const side = Math.max(4, Math.round(steps / 4));
+
+  // Leading cap, one side, trailing cap, the other side.
+  for (let i = 0; i <= cap; i++) {
+    const a = -Math.PI / 2 + (i / cap) * Math.PI;
+    ring.push([straight + r * Math.cos(a), r * Math.sin(a) * wob(a)]as never);
+  }
+  for (let i = 1; i < side; i++) {
+    const t = i / side;
+    const along = straight - 2 * straight * t;
+    ring.push([along, r * wob(Math.PI / 2 + t)] as never);
+  }
+  for (let i = 0; i <= cap; i++) {
+    const a = Math.PI / 2 + (i / cap) * Math.PI;
+    ring.push([-straight + r * Math.cos(a), r * Math.sin(a) * wob(a)] as never);
+  }
+  for (let i = 1; i < side; i++) {
+    const t = i / side;
+    const along = -straight + 2 * straight * t;
+    ring.push([along, -r * wob(Math.PI * 1.5 + t)] as never);
+  }
+
+  const out = (ring as unknown as [number, number][]).map(([along, across]) =>
+    offsetKm(centre[0], centre[1], bearingDeg, along, across),
+  );
+  out.push(out[0]);
+  return out;
+}
+
+/** Shoelace area of a ring, in km². */
+function ringAreaKm2(ring: [number, number][]): number {
+  let a = 0;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const xi = ring[i][1] * KM_PER_DEG_LAT * KX;
+    const yi = ring[i][0] * KM_PER_DEG_LAT;
+    const xj = ring[j][1] * KM_PER_DEG_LAT * KX;
+    const yj = ring[j][0] * KM_PER_DEG_LAT;
+    a += xj * yi - xi * yj;
+  }
+  return Math.abs(a) / 2;
+}
+
+/**
+ * Where the three fragments sit along the 135° axis, as fractions of the
+ * 18.0 km extent. The outer edges are exactly -0.5 and +0.5, so the drawn
+ * outline runs from the fresh end to the tail (both fixed by the spec), with
+ * two gaps between. Coverage is 0.90 of the extent.
+ */
+const S01_FRAGMENT_SPANS: [number, number][] = [
+  [-0.5, -0.09],
+  [-0.04, 0.16],
+  [0.21, 0.5],
+];
+
+/** Relative widths: the fresh end is widest, the tail has thinned and spread. */
+const S01_FRAGMENT_WIDTH_PROFILE = [1.18, 1.0, 0.84];
+
+/** S01, from scenario.detection.S01: 18.0 km extent along 135°, 3 fragments.
+ *
+ * The fragment widths are *solved*, not assumed: a single scale factor is
+ * bisected until the drawn polygon's area equals the stated area for that
+ * outline level. Extent, fragment count and the two end positions stay fixed,
+ * so the only free parameter is width. scripts/check-geometry.ts asserts the
+ * result, so this cannot drift.
+ */
+function buildS01Fragments(widthScaleKm: number): [number, number][][] {
+  const s = detection.S01;
+  // A fresh stream each call, so a trial width never shifts the wobble.
+  const rand = stream('patch:S01').next;
+  return S01_FRAGMENT_SPANS.map(([a, b], i) => {
     const midT = (a + b) / 2;
     const fragLen = (b - a) * s.length_km;
     const centre = offsetKm(s.centre[0], s.centre[1], s.orientation_deg, midT * s.length_km, 0);
-    // The fresh (head) end is the widest; the tail has thinned and spread.
-    const taper = 1 - 0.35 * (midT + 0.5);
-    fragments.push(ellipseRing(centre, fragLen, widthKm * (1.25 - taper * 0.4), s.orientation_deg, 0.1, rand, 48));
+    return stadiumRing(
+      centre,
+      fragLen,
+      widthScaleKm * S01_FRAGMENT_WIDTH_PROFILE[i],
+      s.orientation_deg,
+      0.06,
+      rand,
+      64,
+    );
+  });
+}
+
+/** Solve the width scale that makes the drawn area equal `targetKm2`. */
+function solveS01Width(targetKm2: number): number {
+  let lo = 0.05;
+  let hi = 4;
+  for (let i = 0; i < 60; i++) {
+    const mid = (lo + hi) / 2;
+    const area = buildS01Fragments(mid).reduce((t, r) => t + ringAreaKm2(r), 0);
+    if (area < targetKm2) lo = mid;
+    else hi = mid;
   }
+  return (lo + hi) / 2;
+}
+
+function buildS01(level: 'tight' | 'expected' | 'generous'): Patch {
+  const s = detection.S01;
+  const areas = s.outline_levels;
+  const target = level === 'tight' ? areas.tight_km2 : level === 'generous' ? areas.generous_km2 : areas.expected_km2;
+
+  const widthKm = solveS01Width(target);
+  const fragments = buildS01Fragments(widthKm);
 
   return {
     id: 'S01',

@@ -160,7 +160,7 @@
    ],
    "area_km2": 12.4,
    "length_km": 18.0,
-   "width_m": 690,
+   "width_m": 765,
    "orientation_deg": 135,
    "fragments": 3,
    "fresh_end": [
@@ -196,7 +196,8 @@
     "tight_km2": 10.9,
     "expected_km2": 12.4,
     "generous_km2": 14.6
-   }
+   },
+   "width_note": "mean width over the 16.2 km the three fragments cover, measured from the drawn outline at the expected level; over the full 18.0 km extent, gaps included, it is 689 m"
   },
   "S02": {
    "oil_prob": 0.74,
@@ -215,7 +216,7 @@
    "verdict": "consistent with a low-wind patch"
   },
   "box_vs_outline": {
-   "box_km2": 167,
+   "box_km2": 168,
    "slick_km2": 12.4,
    "note": "axis-aligned bounding box of the S01 outline at the expected level, computed from the geometry the screen draws"
   },
