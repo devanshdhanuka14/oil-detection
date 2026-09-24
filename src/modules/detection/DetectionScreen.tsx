@@ -13,6 +13,7 @@ import { fmtUtc } from '../../lib/time';
 import { useApp } from '../../shell/store';
 import { color } from '../../theme/tokens';
 import { LayerChips, StepSlider, ToggleBar } from '../../ui/controls';
+import { PanelScroll } from '../../ui/PanelScroll';
 import { useTimeline } from '../../shell/timeline';
 import { lerpView, vb, viewOn, fullView } from '../../map/Camera';
 import { detectionTimeline } from './timeline';
@@ -83,7 +84,7 @@ export function DetectionScreen() {
             <RadarCanvas patches={imagePatches.all} blindRing={blind} p={p} width={MAP_W} height={MAP_H} />
           </div>
           <svg className="map-svg" viewBox={vb(view)} width={MAP_W} height={MAP_H}>
-            {!hiddenLayers.blind && (toggle === 'blind' || toggle === 'sbs') && <BlindLayer ring={blind} p={p} />}
+            {!hiddenLayers.blind && toggle === 'blind' && <BlindLayer ring={blind} p={p} />}
             {!hiddenLayers.outlines && (
               <PatchLayer
                 patches={patches.all
@@ -122,7 +123,7 @@ export function DetectionScreen() {
             onChange={setToggle}
           />
 
-          <div className="panel-scroll">
+          <PanelScroll follow={`${Math.floor(st.processingLines)}-${st.groupsShown}-${st.showPanel}-${toggle}`}>
             {toggle === 'blind' ? (
               <BlindPanel />
             ) : toggle === 'handoff' ? (
@@ -149,7 +150,7 @@ export function DetectionScreen() {
                 ) : null}
               </>
             )}
-          </div>
+          </PanelScroll>
         </aside>
       </div>
 

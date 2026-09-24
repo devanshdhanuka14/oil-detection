@@ -54,14 +54,15 @@ export function PatchLayer({
         const stroke = isOil ? (confirmed ? color.oil : '#B9C6DA') : dim ? color.lookAlike : '#B9C6DA';
         const rings = patch.fragments ?? [patch.ring];
 
-        // SPEC-CONFLICT: CLAUDE.md §5 dims a rejected look-alike to 15%. Applied
-        // to the whole outline over speckle that renders it invisible, which
-        // contradicts spec 1 §11 ("Hide the look-alikes. They are the whole
-        // point.") and spec 1 §8, which requires every outline to stay
-        // clickable. The 15% is therefore applied to the patch's *fill and
-        // prominence*, while the stroke keeps a readable floor over a dark
-        // casing. The dashed pattern and the yellow still carry "rejected".
-        const fillOpacity = dim ? alpha.lookAlikeDimmed : 0;
+        // A look-alike carries no fill: it is already a dark patch in the
+        // radar image, and an amber wash over it would hide the very thing the
+        // outline is pointing at. The yellow dashed stroke carries "rejected".
+        //
+        // SPEC-CONFLICT: CLAUDE.md §5 dims a rejected look-alike to 15%.
+        // Applied to the stroke over speckle that renders all 45 invisible,
+        // which contradicts spec 1 §11 ("Hide the look-alikes. They are the
+        // whole point.") and §8, which needs every outline clickable. The
+        // stroke therefore keeps a readable floor over a dark casing.
         const strokeOpacity = dim ? DIMMED_STROKE_OPACITY : 1;
 
         return (
@@ -79,14 +80,21 @@ export function PatchLayer({
               line readable.
             */}
             {rings.map((ring, i) => (
-              <path key={`case${i}`} d={ringPath(ring, p)} fill="none" stroke="#070C16" strokeWidth={selected ? 5.5 : 3.6} strokeOpacity={dim ? 0.8 : 0.7} />
+              <path
+                key={`case${i}`}
+                d={ringPath(ring, p)}
+                fill="none"
+                stroke="#070C16"
+                strokeWidth={selected ? 5.5 : 3.2}
+                strokeOpacity={isOil ? 0.35 : 0.7}
+              />
             ))}
             {rings.map((ring, i) => (
               <path
                 key={i}
                 d={ringPath(ring, p)}
-                fill={isOil && confirmed ? color.oil : dim ? color.lookAlike : 'none'}
-                fillOpacity={isOil && confirmed ? alpha.oilFill : fillOpacity}
+                fill={isOil && confirmed ? color.oil : 'none'}
+                fillOpacity={isOil && confirmed ? alpha.oilFill : 0}
                 stroke={stroke}
                 strokeOpacity={strokeOpacity}
                 strokeWidth={selected ? 3 : isOil && confirmed ? 2.2 : 1.5}

@@ -36,13 +36,15 @@ html, body, #root {
 
 /* ── Stage ────────────────────────────────────────────────────────────── */
 .stage-holder {
-  width: 100vw;
-  height: 100vh;
-  display: grid;
-  place-items: center;
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
   background: #05080f; /* letterbox */
 }
 .stage {
+  position: absolute;
+  left: 50%;
+  top: 50%;
   transform-origin: center center;
   flex: none;
   display: flex;
@@ -198,14 +200,14 @@ html, body, #root {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  padding: 12px 16px 20px;
+  padding: 10px 16px 12px;
   scrollbar-width: thin;
   scrollbar-color: #2a3a56 transparent;
 }
 .panel-scroll::-webkit-scrollbar { width: 8px; }
 .panel-scroll::-webkit-scrollbar-thumb { background: #2a3a56; border-radius: 4px; }
 
-.block { margin-bottom: 20px; }
+.block { margin-bottom: 12px; }
 .block__head {
   font-size: 11px;
   font-weight: 600;
@@ -230,8 +232,8 @@ html, body, #root {
   gap: 9px;
   align-items: baseline;
   font-size: 13px;
-  line-height: 1.5;
-  padding: 2px 0;
+  line-height: 1.45;
+  padding: 1px 0;
   opacity: 0;
   transform: translateX(-6px);
   transition-property: opacity, transform;
@@ -254,7 +256,7 @@ html, body, #root {
 .tick .count { font-family: var(--font-mono); font-weight: 500; }
 
 /* ── Fields ───────────────────────────────────────────────────────────── */
-.field { display: flex; gap: 12px; font-size: 13px; line-height: 1.55; padding: 1px 0; }
+.field { display: flex; gap: 12px; font-size: 13px; line-height: 1.5; padding: 0.5px 0; }
 .field__label { flex: none; width: 150px; color: var(--muted); }
 .field__value { color: var(--text); }
 .field__value.is-mono { font-family: var(--font-mono); font-size: 12.5px; }
@@ -263,7 +265,7 @@ html, body, #root {
 .num { font-family: var(--font-mono); }
 
 /* ── Rule head ────────────────────────────────────────────────────────── */
-.rule-head { display: flex; align-items: center; gap: 10px; margin: 6px 0 10px; }
+.rule-head { display: flex; align-items: center; gap: 10px; margin: 4px 0 8px; }
 .rule-head__left { font-size: 13px; font-weight: 600; letter-spacing: 0.1em; white-space: nowrap; }
 .rule-head__fill { flex: 1; height: 1px; background: var(--panel-border); }
 .rule-head__right { font-size: 12px; white-space: nowrap; }
@@ -272,10 +274,10 @@ html, body, #root {
 .verdict--not { color: var(--muted); }
 
 .detail { margin-top: 4px; }
-.detail__group { margin-bottom: 14px; }
+.detail__group { margin-bottom: 10px; }
 .detail__head {
   font-size: 11px; font-weight: 600; letter-spacing: 0.14em;
-  color: var(--muted); margin: 10px 0 5px;
+  color: var(--muted); margin: 8px 0 4px;
 }
 .detail__note { font-size: 12px; color: var(--muted); font-style: italic; margin-bottom: 8px; }
 
@@ -283,15 +285,15 @@ html, body, #root {
 .estimated {
   background: var(--estimated-bg);
   border-left: 3px solid var(--amber);
-  padding: 9px 12px;
-  margin: 12px 0;
+  padding: 8px 12px;
+  margin: 10px 0;
 }
 .estimated__head {
   font-size: 11px; font-weight: 600; letter-spacing: 0.12em;
   color: var(--amber); margin-bottom: 6px;
 }
 .estimated__body .field__value i { font-style: italic; color: #f0e2c8; }
-.notres { padding: 8px 0 0; margin-top: 10px; border-top: 1px solid var(--panel-border); }
+.notres { padding: 7px 0 0; margin-top: 8px; border-top: 1px solid var(--panel-border); }
 .notres__head {
   font-size: 11px; font-weight: 600; letter-spacing: 0.12em;
   color: var(--muted); margin-bottom: 5px;
@@ -522,7 +524,6 @@ html, body, #root {
   border-radius: 3px;
   font-size: 13px; letter-spacing: 0.04em; color: var(--text);
 }
-.stage { position: relative; }
 
 /* ── Side-by-side (§7 in all three specs) ─────────────────────────────── */
 .sbs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }

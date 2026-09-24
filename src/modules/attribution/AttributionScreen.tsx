@@ -13,6 +13,7 @@ import { fmtStep, fmtUtc } from '../../lib/time';
 import { useApp } from '../../shell/store';
 import { color } from '../../theme/tokens';
 import { LayerChips, StepSlider, ToggleBar } from '../../ui/controls';
+import { PanelScroll } from '../../ui/PanelScroll';
 import { Basemap } from '../../map/Basemap';
 import { ringPath } from '../detection/PatchLayer';
 import { SourceLayer } from '../backtracking/CloudLayer';
@@ -190,7 +191,7 @@ export function AttributionScreen() {
             onChange={setToggle}
           />
 
-          <div className="panel-scroll">
+          <PanelScroll follow={`${Math.floor(st.stage1)}-${st.groupsShown}-${Math.floor(h)}-${st.showRanking}-${toggle}`}>
             {toggle === 'coverage' ? (
               <AisCoveragePanel />
             ) : toggle === 'dark' ? (
@@ -205,14 +206,14 @@ export function AttributionScreen() {
                 <FilterPanel groupsShown={st.groupsShown} />
                 {st.playhead > 0 && <LoopPanel outcome={outcome} threshold={threshold} currentH={h} />}
                 {st.showRanking && (
-                  <>
+                  <div data-payoff>
                     <Ranking onSelect={(id) => select({ kind: 'track', id })} selectedId={selection?.id ?? null} />
                     <SelectedCard ais={ais} />
-                  </>
+                  </div>
                 )}
               </>
             )}
-          </div>
+          </PanelScroll>
         </aside>
       </div>
 

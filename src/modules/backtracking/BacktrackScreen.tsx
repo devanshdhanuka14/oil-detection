@@ -11,6 +11,7 @@ import { fmtUtc } from '../../lib/time';
 import { useApp } from '../../shell/store';
 import { color } from '../../theme/tokens';
 import { LayerChips, StepSlider, ToggleBar } from '../../ui/controls';
+import { PanelScroll } from '../../ui/PanelScroll';
 import { Basemap } from '../../map/Basemap';
 import { ringPath } from '../detection/PatchLayer';
 import { ParticleCanvas } from './ParticleCanvas';
@@ -187,7 +188,7 @@ export function BacktrackScreen() {
             onChange={setToggle}
           />
 
-          <div className="panel-scroll">
+          <PanelScroll follow={`${Math.floor(st.stage1)}-${Math.floor(st.stage2)}-${st.refinedShown}-${st.showPanel}-${toggle}`}>
             {toggle === 'forecast' ? (
               <ForecastPanel />
             ) : toggle === 'limits' ? (
@@ -206,10 +207,14 @@ export function BacktrackScreen() {
                 <Stage1Panel upTo={st.stage1 - 1} />
                 <Stage2Panel upTo={st.stage2 - 1} />
                 <Stage3Panel refined={st.refinedShown} shown={st.stage2 >= 6} />
-                {st.showPanel && <SourcePanel />}
+                {st.showPanel && (
+                  <div data-payoff>
+                    <SourcePanel />
+                  </div>
+                )}
               </>
             )}
-          </div>
+          </PanelScroll>
         </aside>
       </div>
 
