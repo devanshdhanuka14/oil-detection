@@ -9,7 +9,8 @@
  * It sits below the total as an annotated eliminated row, which keeps both the
  * sum rule and the demo's closing beat.
  */
-import { attribution, displayName } from '../../../data/scenario';
+import { attribution, backtracking, displayName } from '../../../data/scenario';
+import { hoursBetween } from '../../../lib/time';
 import { ProbBar } from '../../../ui/primitives';
 
 const ICON: Record<string, string> = {
@@ -63,7 +64,10 @@ export function Ranking({
       >
         <span className="rank-row__icon">✗</span>
         <span className="rank-row__name">{tessera.name}</span>
-        <span className="rank-row__note">eliminated · arrived 16 h after the oil</span>
+        <span className="rank-row__note">
+          arrived ~{hoursBetween(backtracking.source.time_utc, tessera.first_within_2nm_of_slick_utc)} h
+          after the oil was released
+        </span>
         <span className="rank-row__pct">{(tessera.p * 100).toFixed(1)}%</span>
       </button>
 

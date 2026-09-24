@@ -81,12 +81,12 @@ export function TrapCard() {
       <div className="detail__group">
         <div className="detail__head">WHY NOT</div>
         <TickLine kind="no">
-          arrived near the slick at {fmtHm(v.arrived_near_slick_utc)} UTC,{' '}
-          {fmtDuration(v.arrived_near_slick_utc, sar.time_utc)} before the image
+          came within 2 nm of the slick only at {fmtHm(v.first_within_2nm_of_slick_utc)} UTC,{' '}
+          {fmtDuration(v.first_within_2nm_of_slick_utc, sar.time_utc)} before the image
         </TickLine>
         <TickLine kind="no">
-          the oil was already there about{' '}
-          {hoursBetween(backtracking.source.time_utc, v.arrived_near_slick_utc)} h earlier and drifted in
+          the oil had already been on the water for about{' '}
+          {hoursBetween(backtracking.source.time_utc, v.first_within_2nm_of_slick_utc)} h
         </TickLine>
         <TickLine kind="no">never inside the rewound oil at any matching time</TickLine>
         <TickLine kind="arrow">
@@ -204,7 +204,10 @@ export function NoneCard() {
 /** Spec 3 §5.7: any dimmed track shows its group's reason. */
 export function EliminatedCard({ track }: { track: AisTrack }) {
   const group = attribution.filter_groups.find((g) => g.id === track.group);
-  const stageRadius = attribution.vessels['V-A'].min_distance_nm;
+  // The bar a candidate had to clear: the search radius at the stop step, not
+  // any one vessel's closest approach.
+  const stopH = attribution.loop_rows.find((r) => r.stop_at_default)!.h;
+  const stageRadius = backtracking.backtrack_points.find((b) => b.hours_before_image === stopH)!.radius_2sig_nm;
   return (
     <div className="detail">
       <RuleHead left={track.name.toUpperCase()} right={<span className="verdict verdict--not">ELIMINATED · STAGE 2</span>} />

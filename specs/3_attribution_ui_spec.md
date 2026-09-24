@@ -8,6 +8,13 @@ No page navigation. Three toggles swap the right panel; nothing else moves.
 No backend. Every number comes from `scenario.json` (section `attribution`, plus the
 detection and backtracking hand-offs). All vessels are fictional.
 
+> **Tessera Bay's arrival was corrected.** The old `arrived_near_slick_utc: 23:01 UTC`
+> did not fit its own track — at 23:01 it was still 21 nm from the slick's fresh end.
+> The field is now `first_within_2nm_of_slick_utc`, computed from the track against the
+> S01 outline: **00:17 UTC, 24 min before the image**, by which point the oil had been on
+> the water about 18 h. The trap is unchanged and slightly stronger: the nearest ship at
+> image time only arrived minutes before it.
+
 ---
 
 ## 1. What this demo has to prove
@@ -71,7 +78,7 @@ The "3 suspects" are the same 3 AIS tracks the backtracking screen says lie insi
 | 8.5–16 s | camera eases to the loop view. **The rewind loop:** playhead steps back 30 min at a time. A dashed cyan search circle sits on each backtrack point and grows with its radius. Vessels inside glow teal. Tessera Bay greys out at T−2 h, because it wasn't there yet | step table fills; both meters move; ranking bars reorder live |
 | 16–17 s | circle flashes; playhead locks at T−18 h | `■ STOP · leader 71% ≥ 65% · margin 59 pts ≥ 40 · point confidence 0.80 ≥ 0.60` |
 | 17–21 s | four evidence beats on the leader (section 4) | beat captions |
-| 21–23 s | leader track turns magenta; its match window (05:46–07:36 UTC) glows along the track | ranking locks; leader card fills in. Tessera Bay row reads `0.2% · arrived 16 h after the oil` |
+| 21–23 s | leader track turns magenta; its match window (05:46–07:36 UTC) glows along the track | ranking locks; leader card fills in. Tessera Bay row reads `0.2% · arrived ~18 h after the oil was released` |
 | hold | everything visible together | |
 
 The dimming is **synchronised**. When "402 never within reach" appears on the right,
@@ -201,8 +208,8 @@ different background, italic values, its own header.
 ── MV TESSERA BAY ─────────────────────────── 0.2% · NOT A LIKELY SOURCE ──
 
 WHY NOT
-  ✗ arrived near the slick at 23:01 UTC, 1 h 40 min before the image
-  ✗ the oil was already there about 16 h earlier and drifted in
+  ✗ came within 2 nm of the slick only at 00:17 UTC, 24 min before the image
+  ✗ the oil had already been on the water for about 18 h
   ✗ never inside the rewound oil at any matching time
 → nearest ship ≠ source. This is the most common false attribution.
 ```
@@ -318,7 +325,7 @@ The download is real: it saves the relevant slice of `scenario.json`.
 | | |
 |---|---|
 | **Typical approach** | nearest ship at image time → "MV Tessera Bay responsible" |
-| **Ours** | rewind the oil 18 h → MT Coral Meridian 71%, Tessera Bay 0.2% (arrived 16 h after the oil) · dark 5% · fixed 2% · none 3% |
+| **Ours** | rewind the oil 18 h → MT Coral Meridian 71%, Tessera Bay 0.2% (arrived ~18 h after the oil was released) · dark 5% · fixed 2% · none 3% |
 
 Twenty seconds.
 
@@ -408,7 +415,7 @@ isn't the answer.
    Here, 18 hours back." (STOP)
 6. "MT Coral Meridian: there when the oil was there, parallel to the slick, and it slowed
    down inside that window. 71%, not a verdict." (beats, leader card)
-7. "And Tessera Bay? It arrived 16 hours after the oil." (click the trap card)
+7. "And Tessera Bay? It only came within two miles of the slick 24 minutes before the image — about 18 hours after the oil was released." (click the trap card)
 8. "Set the bar at 80% and the system tells you it can't get there. It doesn't force an answer." (slider)
 9. "It also shows where AIS couldn't see, and checks radar-only ships." (toggles 1–2)
 10. "All of it goes into one case file." (toggle 3)

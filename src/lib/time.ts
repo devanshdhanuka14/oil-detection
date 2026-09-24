@@ -46,7 +46,7 @@ export function fmtDuration(fromIso: string, toIso: string): string {
   return `${h} h ${m} min`;
 }
 
-/** Whole hours between two instants, rounded — e.g. Tessera Bay's "16 h". */
+/** Whole hours between two instants, rounded — e.g. Tessera Bay's "~18 h". */
 export function hoursBetween(fromIso: string, toIso: string): number {
   return Math.round(Math.abs(Date.parse(toIso) - Date.parse(fromIso)) / 3600_000);
 }

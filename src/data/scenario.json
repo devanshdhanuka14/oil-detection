@@ -954,32 +954,32 @@
     "track": [
      {
       "t": "2025-05-27T02:00:00Z",
-      "lat": 8.9588,
-      "lon": 76.3571,
+      "lat": 8.9622,
+      "lon": 76.3609,
       "sog": 12.8
      },
      {
       "t": "2025-05-27T05:46:00Z",
-      "lat": 9.5589,
-      "lon": 75.8127,
+      "lat": 9.5623,
+      "lon": 75.8165,
       "sog": 5.3
      },
      {
       "t": "2025-05-27T06:41:00Z",
-      "lat": 9.6194,
-      "lon": 75.7578,
+      "lat": 9.6228,
+      "lon": 75.7616,
       "sog": 5.3
      },
      {
       "t": "2025-05-27T07:36:00Z",
-      "lat": 9.6799,
-      "lon": 75.7029,
+      "lat": 9.6833,
+      "lon": 75.7067,
       "sog": 12.8
      },
      {
       "t": "2025-05-27T12:41:00Z",
-      "lat": 10.4897,
-      "lon": 74.968,
+      "lat": 10.4931,
+      "lon": 74.9718,
       "sog": 12.8
      }
     ],
@@ -1086,9 +1086,9 @@
       "lon": 75.8178
      }
     ],
-    "arrived_near_slick_utc": "2025-05-27T23:01:00Z",
+    "first_within_2nm_of_slick_utc": "2025-05-28T00:17:11Z",
     "p": 0.002,
-    "role": "typical-approach trap: nearest ship at image time (1.2 km from fresh end), arrived 16 h after the oil was there"
+    "role": "typical-approach trap: nearest ship at image time (1.2 km from fresh end); first came within 2 nm of the slick only 24 min before the image, by which time the oil had been on the water about 18 h"
    },
    "V-ORCHID": {
     "name": "MV Orchid Wave",
