@@ -26,7 +26,7 @@ export function ToggleBar({
 }
 
 /** A discrete slider: the specs only ever use fixed stops, never a free range. */
-export function StepSlider<T extends string | number>({
+export function StepSlider<T extends string | number | null>({
   label,
   options,
   value,

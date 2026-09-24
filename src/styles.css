@@ -185,8 +185,13 @@ html, body, #root {
 
 /* ── Map ──────────────────────────────────────────────────────────────── */
 .screen__map { display: grid; place-items: center; overflow: hidden; }
-.radar-canvas, .map-svg { grid-area: 1 / 1; display: block; }
-.map-svg { position: relative; }
+.radar-canvas, .particle-canvas, .ais-canvas, .map-svg { grid-area: 1 / 1; display: block; }
+/*
+  All map layers are stacked in the same grid cell, so paint order must follow
+  DOM order. A positioned element would jump above the unpositioned canvases
+  regardless of where it sits in the markup, so every layer is positioned.
+*/
+.radar-canvas, .particle-canvas, .ais-canvas, .map-svg { position: relative; }
 
 /* ── Panels ───────────────────────────────────────────────────────────── */
 .panel-scroll {
@@ -372,3 +377,21 @@ html, body, #root {
 .probbar__cell.is-on { background: var(--muted); }
 .probbar--leader .probbar__cell.is-on { background: var(--leader); }
 .probbar--candidate .probbar__cell.is-on { background: var(--candidate); }
+
+/* ── Backtracking ─────────────────────────────────────────────────────── */
+.screen__sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.stage3__run { font-size: 12.5px; line-height: 1.6; margin-bottom: 10px; }
+.stage3__cloud { font-size: 13px; margin-top: 8px; }
+.stage3__refined {
+  margin-top: 10px; padding: 7px 10px;
+  background: #16243c; border-left: 3px solid var(--oil);
+  font-size: 13px;
+}
+.mini-table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin: 6px 0; }
+.mini-table td { padding: 2px 6px 2px 0; color: var(--text); }
+.mini-table td.mono { font-family: var(--font-mono); font-size: 12px; }
+.mini-table tr.is-best td { color: #8ff0f3; }
+.limit { margin-bottom: 12px; }
+.limit__head { font-size: 12.5px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+.limit__body { font-size: 12.5px; color: var(--muted); line-height: 1.55; }
+.mono { font-family: var(--font-mono); }
