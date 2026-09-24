@@ -215,8 +215,9 @@
    "verdict": "consistent with a low-wind patch"
   },
   "box_vs_outline": {
-   "box_km2": 400,
-   "slick_km2": 4
+   "box_km2": 167,
+   "slick_km2": 12.4,
+   "note": "axis-aligned bounding box of the S01 outline at the expected level, computed from the geometry the screen draws"
   },
   "bright_targets": [
    {
