@@ -14,7 +14,16 @@ import { EstimatedBlock, Field, NotResolvableBlock, RuleHead, TickLine } from '.
 const pct = (x: number) => `${Math.round(x * 100)}%`;
 const coord = (lat: number, lon: number) => `${lat.toFixed(4)}° N, ${lon.toFixed(4)}° E`;
 
-export function SlickPanelS01({ areaKm2, level }: { areaKm2: number; level: string }) {
+export function SlickPanelS01({
+  areaKm2,
+  level,
+  elongation,
+}: {
+  areaKm2: number;
+  level: string;
+  /** Measured from the outline on screen, so it tracks the confidence slider. */
+  elongation: number;
+}) {
   const s = detection.S01;
   return (
     <div className="detail">
@@ -26,7 +35,9 @@ export function SlickPanelS01({ areaKm2, level }: { areaKm2: number; level: stri
       <div className="detail__group">
         <div className="detail__head">WHY</div>
         <TickLine>edge sharpness {s.edge_sharpness_db_per_m} dB/m — {s.edge_ratio}× sharper than typical sea</TickLine>
-        <TickLine>elongation {s.elongation} — long and thin, consistent with a moving discharge</TickLine>
+        <TickLine>
+          elongation {elongation} — long and thin, consistent with a moving discharge
+        </TickLine>
         <TickLine>{Math.abs(s.contrast_db)} dB darker than the surrounding sea</TickLine>
         <TickLine>{s.above_noise_db} dB above the sensor noise floor — a real signal</TickLine>
       </div>

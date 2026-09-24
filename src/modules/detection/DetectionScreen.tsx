@@ -141,7 +141,11 @@ export function DetectionScreen() {
                 {selected && selected.group !== 'oil' ? (
                   <RejectedPanel patch={selected} />
                 ) : st.showPanel ? (
-                  <SlickPanelS01 areaKm2={areaKm2} level={outlineLevel} />
+                  <SlickPanelS01
+                    areaKm2={areaKm2}
+                    level={outlineLevel}
+                    elongation={patches.byId.get('S01')!.elongation}
+                  />
                 ) : null}
               </>
             )}

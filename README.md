@@ -59,7 +59,9 @@ Two mechanical checks, both of which have caught real bugs:
 
 - `check:geometry` — the drawn S01 outline must carry the area the panel claims,
   at all three outline levels, over the stated 18.0 km extent, reaching the
-  fresh end and the tail, with `box_vs_outline` equal to its own bounding box.
+  fresh end and the tail, with `box_vs_outline` equal to its own bounding box,
+  and elongation measured from the outline for both the confirmed slick and the
+  rejected example (so "8.05" and "1.6" are the same quantity).
 - `audit:numbers` — no component may hold a scenario number.
 
 ## Where the numbers come from

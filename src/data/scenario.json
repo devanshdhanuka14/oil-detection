@@ -174,7 +174,7 @@
    ],
    "edge_sharpness_db_per_m": 0.118,
    "edge_ratio": 3.4,
-   "elongation": 8.2,
+   "elongation": 8.05,
    "contrast_db": -7.1,
    "above_noise_db": 9,
    "vv_db": -7.1,
@@ -197,7 +197,8 @@
     "expected_km2": 12.4,
     "generous_km2": 14.6
    },
-   "width_note": "mean width over the 16.2 km the three fragments cover, measured from the drawn outline at the expected level; over the full 18.0 km extent, gaps included, it is 689 m"
+   "width_note": "mean width over the 16.2 km the three fragments cover, measured from the drawn outline at the expected level; over the full 18.0 km extent, gaps included, it is 689 m",
+   "elongation_definition": "major / minor axis of the moment-fitted ellipse of the largest fragment, measured from the drawn outline at the expected level; the same definition is used for every rejected look-alike, so the values compare"
   },
   "S02": {
    "oil_prob": 0.74,
@@ -213,7 +214,8 @@
    "edge_ratio": 0.4,
    "elongation": 1.6,
    "contrast_db": -2.1,
-   "verdict": "consistent with a low-wind patch"
+   "verdict": "consistent with a low-wind patch",
+   "elongation_definition": "measured the same way as detection.S01.elongation"
   },
   "box_vs_outline": {
    "box_km2": 168,

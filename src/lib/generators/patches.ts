@@ -13,6 +13,7 @@
  */
 import { detection, geo, sar } from '../../data/scenario';
 import { stream } from '../rng';
+import { elongationOf, largestRing, polygonMoments } from '../shape';
 
 export type PatchGroup = 'oil' | 'fuzzy' | 'blobby' | 'noise';
 
@@ -56,17 +57,23 @@ function offsetKm(lat: number, lon: number, bearingDeg: number, along: number, a
  * An elongated closed ring: a capsule along `bearing`, with a seeded wobble
  * whose amplitude is the patch's edge softness.
  */
+type Harmonic = { a: number; ph: number };
+
+/** Draw one ring's harmonics. Shared between a solve and its final build, so
+ *  both see identical wobble and the measurement holds. */
+function drawHarmonics(rand: () => number, wobble: number): Harmonic[] {
+  return Array.from({ length: 4 }, () => ({ a: rand() * wobble, ph: rand() * Math.PI * 2 }));
+}
+
 function ellipseRing(
   centre: [number, number],
   lengthKm: number,
   widthKm: number,
   bearingDeg: number,
-  wobble: number,
-  rand: () => number,
+  harmonics: Harmonic[],
   steps = 64,
 ): [number, number][] {
-  // One seeded harmonic set per ring, so the wobble is smooth, not noisy.
-  const h = Array.from({ length: 4 }, () => ({ a: rand() * wobble, ph: rand() * Math.PI * 2 }));
+  const h = harmonics;
   const ring: [number, number][] = [];
   for (let i = 0; i < steps; i++) {
     const t = (i / steps) * Math.PI * 2;
@@ -242,7 +249,7 @@ function buildS02(): Patch {
   return {
     id: 'S02',
     group: 'oil',
-    ring: ellipseRing(s.centre as [number, number], s.length_km, widthKm, 118, 0.12, rand, 48),
+    ring: ellipseRing(s.centre as [number, number], s.length_km, widthKm, 118, drawHarmonics(rand, 0.12), 48),
     centre: s.centre as [number, number],
     edgeSoftness: 0.14,
     depthDb: -5.8,
@@ -254,6 +261,30 @@ function buildS02(): Patch {
     edgeRatio: 2.6,
     verdict: 'confirmed oil',
   };
+}
+
+/**
+ * Solve the drawn length/width ratio whose *measured* elongation equals
+ * `target`. Measured elongation is the moment-fitted ellipse's axis ratio, and
+ * the seeded wobble shifts it, so the drawn ratio is not the measured one.
+ */
+function solveAspectForElongation(
+  target: number,
+  lengthKm: number,
+  centre: [number, number],
+  bearingDeg: number,
+  harmonics: Harmonic[],
+): number {
+  const measure = (aspect: number) =>
+    elongationOf(ellipseRing(centre, lengthKm, lengthKm / aspect, bearingDeg, harmonics, 40));
+  let lo = 1.0;
+  let hi = 8;
+  for (let i = 0; i < 50; i++) {
+    const mid = (lo + hi) / 2;
+    if (measure(mid) < target) lo = mid;
+    else hi = mid;
+  }
+  return (lo + hi) / 2;
 }
 
 /**
@@ -307,8 +338,26 @@ function buildLookAlikes(oil: Patch[]): Patch[] {
         depth = rand.range(-1.5, -0.7);
       }
 
-      const widthKm = lengthKm / elong;
       const bearing = rand.range(0, 360);
+      const id = `S${String(n + 3).padStart(2, '0')}`;
+      const harmonics = drawHarmonics(rand.next, 0.08 + softness * 0.22);
+
+      // S14 is the spec's worked example of a *blobby* rejection. Drawn from
+      // the fuzzy group's range it measured 3.6, so its stated elongation of
+      // 1.6 was only a label. Its aspect ratio is solved instead, so the shape
+      // on screen really does measure what the card says - and measures it the
+      // same way S01's does.
+      if (id === 'S14') {
+        elong = solveAspectForElongation(
+          detection.S14_rejected_example.elongation,
+          lengthKm,
+          [lat, lon],
+          bearing,
+          harmonics,
+        );
+      }
+
+      const widthKm = lengthKm / elong;
 
       // Derived from the shape that was just drawn, so the number on the card
       // and the patch on screen always agree. Soft edges, round shape and a
@@ -328,9 +377,9 @@ function buildLookAlikes(oil: Patch[]): Patch[] {
 
       n += 1;
       out.push({
-        id: `S${String(n + 2).padStart(2, '0')}`,
+        id,
         group: g.id as PatchGroup,
-        ring: ellipseRing([lat, lon], lengthKm, widthKm, bearing, 0.08 + softness * 0.22, rand.next, 40),
+        ring: ellipseRing([lat, lon], lengthKm, widthKm, bearing, harmonics, 40),
         centre: [lat, lon],
         edgeSoftness: softness,
         depthDb: depth,
@@ -371,6 +420,24 @@ function applyS14(patches: Patch[]): Patch[] {
   );
 }
 
+/**
+ * Every patch reports the elongation of its own drawn outline, measured as the
+ * major/minor axis ratio of the moment-fitted ellipse. One definition for the
+ * confirmed slick and for every rejected look-alike, so "elongation 8.1" and
+ * "elongation 1.6" are the same quantity and the comparison is fair.
+ *
+ * A fragmented slick is measured on its largest fragment: the whole set's
+ * moments would describe the gaps between fragments as much as the oil.
+ */
+function measureElongation(patches: Patch[]): Patch[] {
+  return patches.map((p) => ({
+    ...p,
+    elongation: Number(
+      polygonMoments(p.fragments ? largestRing(p.fragments) : p.ring).elongation.toFixed(2),
+    ),
+  }));
+}
+
 export type PatchSet = {
   all: Patch[];
   oil: Patch[];
@@ -380,7 +447,7 @@ export type PatchSet = {
 
 export function buildPatches(level: 'tight' | 'expected' | 'generous' = 'expected'): PatchSet {
   const oil = [buildS01(level), buildS02()];
-  const all = applyS14([...oil, ...buildLookAlikes(oil)]);
+  const all = measureElongation(applyS14([...oil, ...buildLookAlikes(oil)]));
   const byGroup = { oil: [], fuzzy: [], blobby: [], noise: [] } as Record<PatchGroup, Patch[]>;
   for (const p of all) byGroup[p.group].push(p);
   return { all, oil, byGroup, byId: new Map(all.map((p) => [p.id, p])) };

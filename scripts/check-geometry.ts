@@ -8,6 +8,7 @@
  *   npm run check:geometry
  */
 import { buildPatches } from '../src/lib/generators/patches';
+import { largestRing, polygonMoments } from '../src/lib/shape';
 import { detection } from '../src/data/scenario';
 
 const KM_PER_DEG_LAT = 111.32;
@@ -95,6 +96,68 @@ check(
   'box_vs_outline slick area is S01 area_km2',
   `${detection.box_vs_outline.slick_km2} vs ${s.area_km2}`,
 );
+
+// --- Elongation -----------------------------------------------------------
+// One definition, applied to the confirmed slick and to the rejected example
+// alike, so "long and thin" and "blobby" are the same measurement.
+
+const ELONG_TOLERANCE = 0.02; // 2%
+
+const s01 = buildPatches('expected').byId.get('S01')!;
+const s01Elong = polygonMoments(largestRing(s01.fragments!)).elongation;
+check(
+  Math.abs(s01Elong / s.elongation - 1) <= ELONG_TOLERANCE,
+  'S01 elongation matches the drawn outline',
+  `${s01Elong.toFixed(3)} measured vs ${s.elongation} stated`,
+);
+
+const s14Patch = buildPatches('expected').byId.get('S14')!;
+const s14Elong = polygonMoments(s14Patch.ring).elongation;
+const s14Stated = detection.S14_rejected_example.elongation;
+check(
+  Math.abs(s14Elong / s14Stated - 1) <= ELONG_TOLERANCE,
+  'S14 elongation matches the drawn outline',
+  `${s14Elong.toFixed(3)} measured vs ${s14Stated} stated`,
+);
+
+// Both must come from the same measurement, or the comparison the screen draws
+// between them means nothing.
+check(
+  Math.abs(s01.elongation - Number(s01Elong.toFixed(2))) < 1e-9 &&
+    Math.abs(s14Patch.elongation - Number(s14Elong.toFixed(2))) < 1e-9,
+  'both report the measured moment-fitted ratio',
+  `S01 ${s01.elongation}, S14 ${s14Patch.elongation}`,
+);
+check(
+  s01Elong > s14Elong * 3,
+  'the slick is clearly more elongated than the look-alike',
+  `${s01Elong.toFixed(2)} vs ${s14Elong.toFixed(2)}`,
+);
+
+// The major axis of the fitted ellipse must be the slick's stated orientation.
+const axis = polygonMoments(largestRing(s01.fragments!)).axisDeg;
+check(
+  Math.min(Math.abs(axis - s.orientation_deg), Math.abs(axis - s.orientation_deg - 180)) <= 2,
+  'fitted major axis matches orientation_deg',
+  `${axis.toFixed(1)}° vs ${s.orientation_deg}°`,
+);
+
+// The measurement itself must be right: a known ellipse measures its own ratio.
+{
+  const KM = KM_PER_DEG_LAT;
+  const ring: [number, number][] = [];
+  for (let i = 0; i < 400; i++) {
+    const t = (i / 400) * Math.PI * 2;
+    ring.push([9.75 + (Math.sin(t) * 2) / KM, 75.9 + (Math.cos(t) * 8) / (KM * KX)]);
+  }
+  ring.push(ring[0]);
+  const m = polygonMoments(ring);
+  check(
+    Math.abs(m.elongation - 4) < 0.01 && Math.abs(m.areaKm2 - Math.PI * 16) < 0.2,
+    'moment fit is correct on a known ellipse',
+    `8x2 ellipse -> ${m.elongation.toFixed(3)} (expect 4.000), area ${m.areaKm2.toFixed(2)} (expect ${(Math.PI * 16).toFixed(2)})`,
+  );
+}
 
 // The generator must be identical run to run.
 const a = JSON.stringify(buildPatches('expected').all.map((p) => p.centre));
