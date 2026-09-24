@@ -5,6 +5,7 @@ import { useKeyboard } from './shell/keyboard';
 import { MODULE_ORDER, useApp, type ModuleId } from './shell/store';
 import { DetectionScreen, DETECTION_TOGGLES } from './modules/detection/DetectionScreen';
 import { BacktrackScreen, BACKTRACK_TOGGLES } from './modules/backtracking/BacktrackScreen';
+import { AttributionScreen, ATTRIBUTION_TOGGLES } from './modules/attribution/AttributionScreen';
 
 export function App() {
   const module = useApp((s) => s.module);
@@ -16,7 +17,7 @@ export function App() {
     const want = location.hash.replace('#', '') as ModuleId;
     if (MODULE_ORDER.includes(want)) useApp.getState().setModule(want);
   }, []);
-  const toggles = module === 'detection' ? DETECTION_TOGGLES : module === 'backtracking' ? BACKTRACK_TOGGLES : [];
+  const toggles = module === 'detection' ? DETECTION_TOGGLES : module === 'backtracking' ? BACKTRACK_TOGGLES : ATTRIBUTION_TOGGLES;
   useKeyboard(toggles);
 
   return (
@@ -27,9 +28,7 @@ export function App() {
       ) : module === 'backtracking' ? (
         <BacktrackScreen />
       ) : (
-        <div className="screen">
-          <div className="placeholder">{module} screen — next step</div>
-        </div>
+        <AttributionScreen />
       )}
     </Stage1080>
   );
