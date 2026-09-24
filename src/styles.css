@@ -182,3 +182,193 @@ html, body, #root {
   color: var(--muted);
   font-size: 13px;
 }
+
+/* ── Map ──────────────────────────────────────────────────────────────── */
+.screen__map { display: grid; place-items: center; overflow: hidden; }
+.radar-canvas, .map-svg { grid-area: 1 / 1; display: block; }
+.map-svg { position: relative; }
+
+/* ── Panels ───────────────────────────────────────────────────────────── */
+.panel-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 12px 16px 20px;
+  scrollbar-width: thin;
+  scrollbar-color: #2a3a56 transparent;
+}
+.panel-scroll::-webkit-scrollbar { width: 8px; }
+.panel-scroll::-webkit-scrollbar-thumb { background: #2a3a56; border-radius: 4px; }
+
+.block { margin-bottom: 20px; }
+.block__head {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.block__found {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 12px 0 4px;
+  opacity: 0;
+  transition: opacity 150ms;
+}
+.block__found.is-shown { opacity: 1; }
+.block__sub { font-size: 12px; color: var(--muted); font-style: italic; margin: 0 0 8px 16px; }
+.block__actions { display: flex; gap: 8px; margin-top: 12px; }
+
+/* ── Tick lines (CLAUDE.md §5: icon ticks in, then text fades and slides) ── */
+.tick {
+  display: flex;
+  gap: 9px;
+  align-items: baseline;
+  font-size: 13px;
+  line-height: 1.5;
+  padding: 2px 0;
+  opacity: 0;
+  transform: translateX(-6px);
+  transition-property: opacity, transform;
+  transition-timing-function: ease-out;
+}
+.tick.is-shown { opacity: 1; transform: none; }
+.tick.is-dim { opacity: 0.45; }
+.tick__icon {
+  flex: none;
+  width: 12px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  text-align: center;
+}
+.tick--yes .tick__icon { color: var(--yes); }
+.tick--no .tick__icon { color: var(--no); }
+.tick--arrow .tick__icon { color: var(--cyan); }
+.tick__text { color: var(--text); }
+.tick--no .tick__text { color: #d4dced; }
+.tick .count { font-family: var(--font-mono); font-weight: 500; }
+
+/* ── Fields ───────────────────────────────────────────────────────────── */
+.field { display: flex; gap: 12px; font-size: 13px; line-height: 1.55; padding: 1px 0; }
+.field__label { flex: none; width: 150px; color: var(--muted); }
+.field__value { color: var(--text); }
+.field__value.is-mono { font-family: var(--font-mono); font-size: 12.5px; }
+.sep { display: inline-block; width: 14px; }
+.muted { color: var(--muted); }
+.num { font-family: var(--font-mono); }
+
+/* ── Rule head ────────────────────────────────────────────────────────── */
+.rule-head { display: flex; align-items: center; gap: 10px; margin: 6px 0 10px; }
+.rule-head__left { font-size: 13px; font-weight: 600; letter-spacing: 0.1em; white-space: nowrap; }
+.rule-head__fill { flex: 1; height: 1px; background: var(--panel-border); }
+.rule-head__right { font-size: 12px; white-space: nowrap; }
+.verdict { font-family: var(--font-mono); letter-spacing: 0.04em; }
+.verdict--oil { color: var(--oil); }
+.verdict--not { color: var(--muted); }
+
+.detail { margin-top: 4px; }
+.detail__group { margin-bottom: 14px; }
+.detail__head {
+  font-size: 11px; font-weight: 600; letter-spacing: 0.14em;
+  color: var(--muted); margin: 10px 0 5px;
+}
+.detail__note { font-size: 12px; color: var(--muted); font-style: italic; margin-bottom: 8px; }
+
+/* ── ESTIMATED / NOT RESOLVABLE (identical on all three screens) ───────── */
+.estimated {
+  background: var(--estimated-bg);
+  border-left: 3px solid var(--amber);
+  padding: 9px 12px;
+  margin: 12px 0;
+}
+.estimated__head {
+  font-size: 11px; font-weight: 600; letter-spacing: 0.12em;
+  color: var(--amber); margin-bottom: 6px;
+}
+.estimated__body .field__value i { font-style: italic; color: #f0e2c8; }
+.notres { padding: 8px 0 0; margin-top: 10px; border-top: 1px solid var(--panel-border); }
+.notres__head {
+  font-size: 11px; font-weight: 600; letter-spacing: 0.12em;
+  color: var(--muted); margin-bottom: 5px;
+}
+.notres__body { font-size: 12.5px; color: var(--muted); line-height: 1.6; }
+
+.prose { font-size: 13px; line-height: 1.65; color: var(--text); margin: 0 0 10px; }
+.json-preview {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: #9fb3d1;
+  background: #0c1424;
+  border: 1px solid var(--panel-border);
+  border-radius: 3px;
+  padding: 9px 11px;
+  margin: 10px 0 0;
+  overflow-x: auto;
+}
+
+/* ── Controls ─────────────────────────────────────────────────────────── */
+.togglebar {
+  flex: none; display: flex; gap: 6px;
+  padding: 10px 16px; border-bottom: 1px solid var(--panel-border);
+}
+.togglebar__btn {
+  padding: 5px 11px; border: 1px solid var(--panel-border); border-radius: 3px;
+  background: #0f1828; color: var(--muted);
+  font-family: var(--font-ui); font-size: 12px; cursor: pointer;
+}
+.togglebar__btn:hover { color: var(--text); }
+.togglebar__btn.is-active { background: #17243c; border-color: #3a5480; color: var(--text); }
+
+.stepslider { display: flex; flex-direction: column; gap: 3px; }
+.stepslider__row { display: flex; align-items: center; gap: 10px; }
+.stepslider__label { font-size: 11px; letter-spacing: 0.08em; color: var(--muted); }
+.stepslider__stops { display: flex; gap: 3px; }
+.stepslider__stop {
+  padding: 3px 9px; border: 1px solid var(--panel-border); border-radius: 3px;
+  background: #0f1828; color: var(--muted);
+  font-family: var(--font-mono); font-size: 11px; cursor: pointer;
+}
+.stepslider__stop.is-active { background: #17243c; border-color: var(--cyan); color: #8ff0f3; }
+.stepslider__caption { font-size: 11px; color: var(--muted); font-style: italic; }
+
+.chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.chip {
+  display: flex; align-items: center; gap: 6px;
+  padding: 3px 9px; border: 1px solid var(--panel-border); border-radius: 3px;
+  background: #0f1828; color: var(--text);
+  font-family: var(--font-ui); font-size: 11.5px; cursor: pointer;
+}
+.chip.is-off { opacity: 0.4; }
+.chip__swatch {
+  width: 11px; height: 11px; flex: none;
+  border: 1.5px solid var(--muted); border-radius: 2px;
+}
+.chip__swatch.is-dashed { border-style: dashed; }
+.chip__swatch.is-hatch {
+  background: repeating-linear-gradient(45deg, #8a9bb3 0 1.5px, transparent 1.5px 4px);
+}
+.footer__spacer { flex: 1; }
+
+.open-next {
+  padding: 5px 10px; border: 1px solid #3a5480; border-radius: 3px;
+  background: #17243c; color: #8ff0f3;
+  font-family: var(--font-ui); font-size: 12px; cursor: pointer;
+}
+
+/* ── Meters and probability bars ──────────────────────────────────────── */
+.meter { margin-bottom: 9px; }
+.meter__top { display: flex; justify-content: space-between; font-size: 11.5px; margin-bottom: 3px; }
+.meter__label { color: var(--muted); }
+.meter__value { font-family: var(--font-mono); color: var(--text); }
+.meter__track { position: relative; height: 9px; background: #0c1424; border: 1px solid var(--panel-border); border-radius: 2px; }
+.meter__fill { height: 100%; background: var(--cyan); opacity: 0.75; transition: width 180ms ease-out; }
+.meter--good .meter__fill { background: var(--yes); }
+.meter--warn .meter__fill { background: var(--amber); }
+.meter__tick { position: absolute; top: -3px; bottom: -3px; width: 2px; background: #f0f4fb; }
+
+.probbar { display: inline-flex; gap: 2px; vertical-align: middle; }
+.probbar__cell { width: 9px; height: 11px; background: #1a2740; border-radius: 1px; }
+.probbar__cell.is-on { background: var(--muted); }
+.probbar--leader .probbar__cell.is-on { background: var(--leader); }
+.probbar--candidate .probbar__cell.is-on { background: var(--candidate); }

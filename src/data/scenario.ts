@@ -39,6 +39,19 @@ export const detection = raw.detection;
 export const backtracking = raw.backtracking;
 export const attribution = raw.attribution;
 
+/** JSON widens tuples to number[]; these give the map layer real BBoxes. */
+const asBBox = (b: { lat: number[]; lon: number[] }): BBoxJson => ({
+  lat: [b.lat[0], b.lat[1]],
+  lon: [b.lon[0], b.lon[1]],
+});
+
+export const bbox = {
+  detection: asBBox(geo.bbox_detection),
+  backtracking: asBBox(geo.bbox_backtracking),
+  attributionOverview: asBBox(geo.bbox_attribution_overview),
+  attributionLoop: asBBox(geo.bbox_attribution_loop),
+} as const;
+
 export const backtrackPoints = backtracking.backtrack_points as BacktrackPoint[];
 export const loopRows = attribution.loop_rows as LoopRow[];
 
