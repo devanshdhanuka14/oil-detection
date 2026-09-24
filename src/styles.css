@@ -541,3 +541,19 @@ html, body, #root {
 .sbs__col--ours .sbs__head { color: var(--yes); }
 .sbs__body { font-size: 12.5px; line-height: 1.6; color: var(--text); }
 .sbs__note { margin-top: 7px; font-size: 11px; color: var(--muted); font-style: italic; }
+
+.particle-tip {
+  position: absolute; z-index: 8;
+  transform: translate(12px, -50%);
+  padding: 7px 10px;
+  background: rgba(11, 18, 32, 0.95);
+  border: 1px solid var(--panel-border); border-left: 3px solid var(--cyan);
+  border-radius: 3px;
+  font-family: var(--font-mono); font-size: 11px; line-height: 1.55; color: #cdd8ea;
+  pointer-events: none; white-space: nowrap;
+}
+.particle-tip__head { color: var(--text); font-weight: 500; margin-bottom: 2px; }
+.particle-tip__note {
+  margin-top: 4px; font-family: var(--font-ui); font-size: 10.5px;
+  color: var(--muted); font-style: italic;
+}

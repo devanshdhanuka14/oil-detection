@@ -79,7 +79,7 @@ export function DetectionScreen() {
 
       <div className="screen__body">
         <div className="screen__map">
-          <div className="radar-wrap" style={{ opacity: st.radar }}>
+          <div className="radar-wrap" style={{ opacity: hiddenLayers.radar ? 0 : st.radar }}>
             <RadarCanvas patches={imagePatches.all} blindRing={blind} p={p} width={MAP_W} height={MAP_H} />
           </div>
           <svg className="map-svg" viewBox={vb(view)} width={MAP_W} height={MAP_H}>
@@ -152,6 +152,7 @@ export function DetectionScreen() {
       <footer className="screen__footer">
         <LayerChips
           chips={[
+            { id: 'radar', label: 'radar', swatch: '#8FA2BD' },
             { id: 'oil', label: 'oil', swatch: color.oil },
             { id: 'lookalike', label: 'look-alike', swatch: color.lookAlike, dashed: true },
             { id: 'blind', label: 'blind', swatch: color.blind, hatch: true },

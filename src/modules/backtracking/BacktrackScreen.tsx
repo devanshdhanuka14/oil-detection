@@ -2,7 +2,7 @@
  * Screen 2, per spec 2 §2: map left, stages right, age and uncertainty sliders
  * in the footer. This step is the static end state (spec 2 §10 item 1).
  */
-import { useMemo } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { backtracking, backtrackPoints, bbox, sar } from '../../data/scenario';
 import { buildParticles, cloudEllipse } from '../../lib/generators/particles';
 import { buildPatches } from '../../lib/generators/patches';
@@ -53,6 +53,53 @@ export function BacktrackScreen() {
 
   const showUncertainty = selection?.kind === 'ellipse';
 
+  // Spec 2 §8: clicking a particle trail shows that particle's state at that
+  // point. Every particle's full history is stored, not just its endpoint.
+  const mapRef = useRef<HTMLDivElement>(null);
+  const [tip, setTip] = useState<{ x: number; y: number; lines: string[] } | null>(null);
+
+  const onMapClick = (e: React.MouseEvent) => {
+    const el = mapRef.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    const x = ((e.clientX - r.left) / r.width) * MAP_W;
+    const y = ((e.clientY - r.top) / r.height) * MAP_H;
+
+    let bestD = Infinity;
+    let bestI = -1;
+    let bestK = -1;
+    particles.all.forEach((q, i) => {
+      q.path.forEach((pt, k) => {
+        const s = p.project(pt[0], pt[1]);
+        const d = Math.hypot(s.x - x, s.y - y);
+        if (d < bestD) {
+          bestD = d;
+          bestI = i;
+          bestK = k;
+        }
+      });
+    });
+    if (bestI < 0 || bestD > 10) {
+      setTip(null);
+      return;
+    }
+
+    const q = particles.all[bestI];
+    const pt = q.path[bestK];
+    const hours = (bestK / (q.path.length - 1)) * q.age;
+    const f = backtracking.forcing;
+    setTip({
+      x,
+      y,
+      lines: [
+        `particle #${String(bestI + 1).padStart(3, '0')} · ${q.age} h hypothesis`,
+        `${pt[0].toFixed(4)}° N, ${pt[1].toFixed(4)}° E`,
+        `t = \u2212${hours.toFixed(1)} h from the SAR image`,
+        `current ${f.current} · wind ${f.wind}`,
+      ],
+    });
+  };
+
   return (
     <div className="screen">
       <header className="screen__header">
@@ -68,7 +115,7 @@ export function BacktrackScreen() {
       </header>
 
       <div className="screen__body">
-        <div className="screen__map">
+        <div className="screen__map" ref={mapRef} onClick={onMapClick}>
           <svg className="map-svg" viewBox={`0 0 ${MAP_W} ${MAP_H}`} width={MAP_W} height={MAP_H}>
             <Basemap p={p} />
             {/*
@@ -94,8 +141,8 @@ export function BacktrackScreen() {
           )}
           <svg className="map-svg" viewBox={`0 0 ${MAP_W} ${MAP_H}`} width={MAP_W} height={MAP_H}>
             {!hiddenLayers.path && <BacktrackPath p={p} points={backtrackPoints} />}
-            {toggle === 'forecast' && <ForecastLayer p={p} />}
-            {toggle === 'limits' && <DataLimitOverlay p={p} />}
+            {toggle === 'forecast' && !hiddenLayers.forecast && <ForecastLayer p={p} />}
+            {toggle === 'limits' && !hiddenLayers.limits && <DataLimitOverlay p={p} />}
             {/* The one arrow every competing demo draws, then replaced. */}
             {st.singleArrow > 0 && <SingleArrow p={p} opacity={st.singleArrow} />}
 
@@ -114,6 +161,18 @@ export function BacktrackScreen() {
               </g>
             )}
           </svg>
+
+          {tip && (
+            <div
+              className="particle-tip"
+              style={{ left: `${(tip.x / MAP_W) * 100}%`, top: `${(tip.y / MAP_H) * 100}%` }}
+            >
+              {tip.lines.map((l, i) => (
+                <div key={i} className={i === 0 ? 'particle-tip__head' : undefined}>{l}</div>
+              ))}
+              <div className="particle-tip__note">every particle's full history is stored</div>
+            </div>
+          )}
         </div>
 
         <aside className="screen__panel">
@@ -161,6 +220,8 @@ export function BacktrackScreen() {
             { id: 'cloud', label: 'ensemble cloud', swatch: color.sourceCloud },
             { id: 'source', label: 'source pin', swatch: color.oil },
             { id: 'path', label: 'backtrack path', swatch: color.oil, dashed: true },
+            { id: 'forecast', label: 'forecast', swatch: color.sourceCloud, dashed: true },
+            { id: 'limits', label: 'data limits', swatch: color.blind, hatch: true },
           ]}
           hidden={hiddenLayers}
           onToggle={toggleLayer}
