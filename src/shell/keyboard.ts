@@ -39,6 +39,14 @@ export function useKeyboard(availableToggles: string[]) {
         case 'T':
           s.cycleToggle(availableToggles);
           break;
+        case 'z':
+        case 'Z':
+          // Explore only: the magnifier must never appear in Play.
+          if (s.mode === 'explore') s.toggleMagnifier();
+          break;
+        case 'Escape':
+          s.setMagnified(false);
+          break;
         case 'ArrowLeft':
           e.preventDefault();
           s.stepBeat(-1);

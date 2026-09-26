@@ -11,6 +11,7 @@ import { buildPatches } from '../../lib/generators/patches';
 import { distanceNm, makeProjection } from '../../map/projection';
 import { fmtStep, fmtUtc } from '../../lib/time';
 import { useApp } from '../../shell/store';
+import { Magnifier } from '../../shell/Magnifier';
 import { color } from '../../theme/tokens';
 import { LayerChips, StepSlider, ToggleBar } from '../../ui/controls';
 import { PanelScroll } from '../../ui/PanelScroll';
@@ -40,7 +41,7 @@ const MAP_H = 918;
 export const ATTRIBUTION_TOGGLES = ['coverage', 'dark', 'casefile', 'sbs'];
 
 export function AttributionScreen() {
-  const { toggle, setToggle, selection, select, hiddenLayers, toggleLayer, threshold, setThreshold, loopHours, setLoopHours } = useApp();
+  const { toggle, setToggle, selection, select, hiddenLayers, toggleLayer, threshold, setThreshold, loopHours, setLoopHours , magnified} = useApp();
   const svgRef = useRef<SVGSVGElement>(null);
 
   const p = useMemo(() => makeProjection(bbox.attributionOverview, MAP_W, MAP_H), []);
@@ -102,6 +103,77 @@ export function AttributionScreen() {
       select({ kind: 'track', id: t.vesselKey ?? id });
     }
   };
+
+  // Rendered twice: in place, and inside the magnifier when it is open.
+  // Both read the same store, so they stay in step and the stage layout
+  // is identical whether the magnifier is showing or not.
+  const panelContent = (
+    <>
+          <ToggleBar
+            options={[
+              { id: 'coverage', label: "Where AIS couldn't see" },
+              { id: 'dark', label: 'Dark & fixed' },
+              { id: 'casefile', label: 'Case file' },
+              { id: 'sbs', label: 'Typical vs ours' },
+            ]}
+            value={toggle}
+            onChange={setToggle}
+          />
+
+          <PanelScroll follow={`${Math.floor(st.stage1)}-${st.groupsShown}-${Math.floor(h)}-${st.showRanking}-${toggle}`}>
+            {toggle === 'coverage' ? (
+              <AisCoveragePanel />
+            ) : toggle === 'dark' ? (
+              <DarkFixedPanel />
+            ) : toggle === 'casefile' ? (
+              <CaseFilePanel stoppedAt={fmtStep(outcome.stop.h)} threshold={threshold} />
+            ) : toggle === 'sbs' ? (
+              <AttributionSideBySide />
+            ) : (
+              <>
+                <StageSection
+                  id="at1"
+                  title="STAGE 1 · INPUTS RECEIVED"
+                  done={st.stage1 >= INPUT_LINES}
+                  summary={`slick S01 · ${backtrackPoints.length} backtrack points · ${backtracking.handoff.search_radius_nm['3sig']} nm`}
+                >
+                  <InputsPanel upTo={st.stage1 - 1} />
+                </StageSection>
+
+                <StageSection
+                  id="at2"
+                  title="STAGE 2 · AIS FILTER"
+                  done={st.groupsShown > attribution.filter_groups.length - 1}
+                  summary={`${attribution.counter.in_window} → ${attribution.counter.candidates}`}
+                >
+                  <FilterPanel groupsShown={st.groupsShown} />
+                </StageSection>
+
+                {st.playhead > 0 && (
+                  <StageSection
+                    id="at3"
+                    title="STAGE 3 · REWIND LOOP"
+                    done={st.showRanking}
+                    summary={
+                      outcome.conclusive
+                        ? `STOP at ${fmtStep(outcome.stop.h)} · ${Math.round((outcome.stop.p ?? 0) * 100)}%`
+                        : `${fmtStep(outcome.stop.h)} · not conclusive`
+                    }
+                  >
+                    <LoopPanel outcome={outcome} threshold={threshold} currentH={h} />
+                  </StageSection>
+                )}
+                {st.showRanking && (
+                  <div data-payoff>
+                    <Ranking onSelect={(id) => select({ kind: 'track', id })} selectedId={selection?.id ?? null} />
+                    <SelectedCard ais={ais} />
+                  </div>
+                )}
+              </>
+            )}
+          </PanelScroll>
+    </>
+  );
 
   return (
     <div className="screen">
@@ -183,71 +255,8 @@ export function AttributionScreen() {
           )}
         </div>
 
-        <aside className="screen__panel">
-          <ToggleBar
-            options={[
-              { id: 'coverage', label: "Where AIS couldn't see" },
-              { id: 'dark', label: 'Dark & fixed' },
-              { id: 'casefile', label: 'Case file' },
-              { id: 'sbs', label: 'Typical vs ours' },
-            ]}
-            value={toggle}
-            onChange={setToggle}
-          />
-
-          <PanelScroll follow={`${Math.floor(st.stage1)}-${st.groupsShown}-${Math.floor(h)}-${st.showRanking}-${toggle}`}>
-            {toggle === 'coverage' ? (
-              <AisCoveragePanel />
-            ) : toggle === 'dark' ? (
-              <DarkFixedPanel />
-            ) : toggle === 'casefile' ? (
-              <CaseFilePanel stoppedAt={fmtStep(outcome.stop.h)} threshold={threshold} />
-            ) : toggle === 'sbs' ? (
-              <AttributionSideBySide />
-            ) : (
-              <>
-                <StageSection
-                  id="at1"
-                  title="STAGE 1 · INPUTS RECEIVED"
-                  done={st.stage1 >= INPUT_LINES}
-                  summary={`slick S01 · ${backtrackPoints.length} backtrack points · ${backtracking.handoff.search_radius_nm['3sig']} nm`}
-                >
-                  <InputsPanel upTo={st.stage1 - 1} />
-                </StageSection>
-
-                <StageSection
-                  id="at2"
-                  title="STAGE 2 · AIS FILTER"
-                  done={st.groupsShown > attribution.filter_groups.length - 1}
-                  summary={`${attribution.counter.in_window} → ${attribution.counter.candidates}`}
-                >
-                  <FilterPanel groupsShown={st.groupsShown} />
-                </StageSection>
-
-                {st.playhead > 0 && (
-                  <StageSection
-                    id="at3"
-                    title="STAGE 3 · REWIND LOOP"
-                    done={st.showRanking}
-                    summary={
-                      outcome.conclusive
-                        ? `STOP at ${fmtStep(outcome.stop.h)} · ${Math.round((outcome.stop.p ?? 0) * 100)}%`
-                        : `${fmtStep(outcome.stop.h)} · not conclusive`
-                    }
-                  >
-                    <LoopPanel outcome={outcome} threshold={threshold} currentH={h} />
-                  </StageSection>
-                )}
-                {st.showRanking && (
-                  <div data-payoff>
-                    <Ranking onSelect={(id) => select({ kind: 'track', id })} selectedId={selection?.id ?? null} />
-                    <SelectedCard ais={ais} />
-                  </div>
-                )}
-              </>
-            )}
-          </PanelScroll>
-        </aside>
+        <aside className="screen__panel">{panelContent}</aside>
+        {magnified && <Magnifier>{panelContent}</Magnifier>}
       </div>
 
       <footer className="screen__footer">

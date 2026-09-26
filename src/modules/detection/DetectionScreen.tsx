@@ -11,6 +11,7 @@ import { buildBlindZone, buildPatches, type PatchGroup } from '../../lib/generat
 import { makeProjection } from '../../map/projection';
 import { fmtUtc } from '../../lib/time';
 import { useApp } from '../../shell/store';
+import { Magnifier } from '../../shell/Magnifier';
 import { color } from '../../theme/tokens';
 import { LayerChips, StepSlider, ToggleBar } from '../../ui/controls';
 import { PanelScroll } from '../../ui/PanelScroll';
@@ -33,7 +34,7 @@ const MAP_H = 918;
 export const DETECTION_TOGGLES = ['blind', 'handoff', 'sbs'];
 
 export function DetectionScreen() {
-  const { mode, outlineLevel, setOutlineLevel, toggle, setToggle, selection, select, hiddenLayers, toggleLayer } = useApp();
+  const { mode, outlineLevel, setOutlineLevel, toggle, setToggle, selection, select, hiddenLayers, toggleLayer , magnified} = useApp();
 
   const p = useMemo(() => makeProjection(bbox.detection, MAP_W, MAP_H), []);
   // The outline-confidence slider changes our *outline*, not the scene. The
@@ -68,52 +69,11 @@ export function DetectionScreen() {
 
   const selected = selection?.kind === 'patch' ? patches.byId.get(selection.id) : undefined;
 
-  return (
-    <div className="screen">
-      <header className="screen__header">
-        <div className="screen__title">
-          <strong>{sar.sensor}</strong> · {fmtUtc(sar.time_utc)} · {sar.region}
-        </div>
-        <div className="screen__counter">
-          {detection.counter.from} → {detection.counter.to}
-        </div>
-      </header>
-
-      <div className="screen__body">
-        <div className="screen__map">
-          <div className="radar-wrap" style={{ opacity: hiddenLayers.radar ? 0 : st.radar }}>
-            <RadarCanvas patches={imagePatches.all} blindRing={blind} p={p} width={MAP_W} height={MAP_H} />
-          </div>
-          <svg className="map-svg" viewBox={vb(view)} width={MAP_W} height={MAP_H}>
-            {!hiddenLayers.blind && toggle === 'blind' && <BlindLayer ring={blind} p={p} />}
-            {!hiddenLayers.outlines && (
-              <PatchLayer
-                patches={patches.all
-                  .filter((x) => (x.group === 'oil' ? !hiddenLayers.oil : !hiddenLayers.lookalike))
-                  .slice(0, Math.ceil(patches.all.length * st.outlines))}
-                p={p}
-                eliminated={eliminated}
-                confirmed={st.confirmed}
-                selectedId={selected?.id ?? null}
-                onSelect={(id) => select({ kind: 'patch', id })}
-                interactive
-              />
-            )}
-            {!hiddenLayers.bt && <BrightTargetLayer targets={detection.bright_targets} p={p} />}
-          </svg>
-
-          {/* The four outline-building beats, and the box-vs-outline inset. */}
-          {st.zoom > 0.5 && (
-            <div className="beat-caption">
-              <span className="beat-caption__n">{zoomBeat + 1}/{OUTLINE_BEATS.length}</span>
-              <span className="beat-caption__title">{OUTLINE_BEATS[zoomBeat].title}</span>
-              <span className="beat-caption__text">{OUTLINE_BEATS[zoomBeat].caption}</span>
-            </div>
-          )}
-          {st.zoom > 0.5 && zoomBeat === OUTLINE_BEATS.length - 1 && <BoxVsOutline />}
-        </div>
-
-        <aside className="screen__panel">
+  // Rendered twice: in place, and inside the magnifier when it is open.
+  // Both read the same store, so they stay in step and the stage layout
+  // is identical whether the magnifier is showing or not.
+  const panelContent = (
+    <>
           <ToggleBar
             options={[
               { id: 'blind', label: 'Blind areas' },
@@ -169,7 +129,56 @@ export function DetectionScreen() {
               </>
             )}
           </PanelScroll>
-        </aside>
+    </>
+  );
+
+  return (
+    <div className="screen">
+      <header className="screen__header">
+        <div className="screen__title">
+          <strong>{sar.sensor}</strong> · {fmtUtc(sar.time_utc)} · {sar.region}
+        </div>
+        <div className="screen__counter">
+          {detection.counter.from} → {detection.counter.to}
+        </div>
+      </header>
+
+      <div className="screen__body">
+        <div className="screen__map">
+          <div className="radar-wrap" style={{ opacity: hiddenLayers.radar ? 0 : st.radar }}>
+            <RadarCanvas patches={imagePatches.all} blindRing={blind} p={p} width={MAP_W} height={MAP_H} />
+          </div>
+          <svg className="map-svg" viewBox={vb(view)} width={MAP_W} height={MAP_H}>
+            {!hiddenLayers.blind && toggle === 'blind' && <BlindLayer ring={blind} p={p} />}
+            {!hiddenLayers.outlines && (
+              <PatchLayer
+                patches={patches.all
+                  .filter((x) => (x.group === 'oil' ? !hiddenLayers.oil : !hiddenLayers.lookalike))
+                  .slice(0, Math.ceil(patches.all.length * st.outlines))}
+                p={p}
+                eliminated={eliminated}
+                confirmed={st.confirmed}
+                selectedId={selected?.id ?? null}
+                onSelect={(id) => select({ kind: 'patch', id })}
+                interactive
+              />
+            )}
+            {!hiddenLayers.bt && <BrightTargetLayer targets={detection.bright_targets} p={p} />}
+          </svg>
+
+          {/* The four outline-building beats, and the box-vs-outline inset. */}
+          {st.zoom > 0.5 && (
+            <div className="beat-caption">
+              <span className="beat-caption__n">{zoomBeat + 1}/{OUTLINE_BEATS.length}</span>
+              <span className="beat-caption__title">{OUTLINE_BEATS[zoomBeat].title}</span>
+              <span className="beat-caption__text">{OUTLINE_BEATS[zoomBeat].caption}</span>
+            </div>
+          )}
+          {st.zoom > 0.5 && zoomBeat === OUTLINE_BEATS.length - 1 && <BoxVsOutline />}
+        </div>
+
+        <aside className="screen__panel">{panelContent}</aside>
+        {magnified && <Magnifier>{panelContent}</Magnifier>}
       </div>
 
       <footer className="screen__footer">

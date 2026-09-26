@@ -9,6 +9,7 @@ import { buildPatches } from '../../lib/generators/patches';
 import { makeProjection } from '../../map/projection';
 import { fmtUtc } from '../../lib/time';
 import { useApp } from '../../shell/store';
+import { Magnifier } from '../../shell/Magnifier';
 import { color } from '../../theme/tokens';
 import { LayerChips, StepSlider, ToggleBar } from '../../ui/controls';
 import { PanelScroll } from '../../ui/PanelScroll';
@@ -34,7 +35,7 @@ const MAP_H = 918;
 export const BACKTRACK_TOGGLES = ['forecast', 'limits', 'handoff', 'sbs'];
 
 export function BacktrackScreen() {
-  const { toggle, setToggle, selection, select, hiddenLayers, toggleLayer, ageHypothesis, setAgeHypothesis, sigma, setSigma } = useApp();
+  const { toggle, setToggle, selection, select, hiddenLayers, toggleLayer, ageHypothesis, setAgeHypothesis, sigma, setSigma , magnified} = useApp();
 
   const p = useMemo(() => makeProjection(bbox.backtracking, MAP_W, MAP_H), []);
   const particles = useMemo(() => buildParticles(), []);
@@ -104,6 +105,77 @@ export function BacktrackScreen() {
       ],
     });
   };
+
+  // Rendered twice: in place, and inside the magnifier when it is open.
+  // Both read the same store, so they stay in step and the stage layout
+  // is identical whether the magnifier is showing or not.
+  const panelContent = (
+    <>
+          <ToggleBar
+            options={[
+              { id: 'forecast', label: 'Forecast 72 h' },
+              { id: 'limits', label: 'Data limits' },
+              { id: 'handoff', label: 'Hand-off' },
+              { id: 'sbs', label: 'Typical vs ours' },
+            ]}
+            value={toggle}
+            onChange={setToggle}
+          />
+
+          <PanelScroll follow={`${Math.floor(st.stage1)}-${Math.floor(st.stage2)}-${st.refinedShown}-${st.showPanel}-${toggle}`}>
+            {toggle === 'forecast' ? (
+              <ForecastPanel />
+            ) : toggle === 'limits' ? (
+              <DataLimitsPanel />
+            ) : toggle === 'handoff' ? (
+              <BacktrackHandoffPanel />
+            ) : toggle === 'sbs' ? (
+              <BacktrackSideBySide />
+            ) : showUncertainty ? (
+              <>
+                <UncertaintyPanel />
+                <button className="shell-btn" onClick={() => select(null)}>← back to source estimate</button>
+              </>
+            ) : (
+              <>
+                <StageSection
+                  id="bt1"
+                  title="STAGE 1 — AGE ESTIMATION"
+                  done={st.stage1 >= STAGE_LINES}
+                  summary={`${backtracking.age_window_h[0]}–${backtracking.age_window_h[1]} h · ${backtracking.hypotheses_h.join('/')} h tested`}
+                >
+                  <Stage1Panel upTo={st.stage1 - 1} />
+                </StageSection>
+
+                <StageSection
+                  id="bt2"
+                  title="STAGE 2 — FORCING DATA"
+                  done={st.stage2 >= STAGE_LINES}
+                  summary={`${backtracking.forcing.net_drift} · wind drift ${backtracking.forcing.wind_drift_factor_pct}%`}
+                >
+                  <Stage2Panel upTo={st.stage2 - 1} />
+                </StageSection>
+
+                {st.stage2 >= STAGE_LINES && (
+                  <StageSection
+                    id="bt3"
+                    title="STAGE 3 — BACKTRACKING"
+                    done={st.refinedShown}
+                    summary={`${backtracking.cloud_km2.before} → ${backtracking.cloud_km2.after} km² · FSS ${backtracking.fss} (baseline ${backtracking.fss_baseline})`}
+                  >
+                    <Stage3Panel refined={st.refinedShown} shown />
+                  </StageSection>
+                )}
+                {st.showPanel && (
+                  <div data-payoff>
+                    <SourcePanel />
+                  </div>
+                )}
+              </>
+            )}
+          </PanelScroll>
+    </>
+  );
 
   return (
     <div className="screen">
@@ -180,71 +252,8 @@ export function BacktrackScreen() {
           )}
         </div>
 
-        <aside className="screen__panel">
-          <ToggleBar
-            options={[
-              { id: 'forecast', label: 'Forecast 72 h' },
-              { id: 'limits', label: 'Data limits' },
-              { id: 'handoff', label: 'Hand-off' },
-              { id: 'sbs', label: 'Typical vs ours' },
-            ]}
-            value={toggle}
-            onChange={setToggle}
-          />
-
-          <PanelScroll follow={`${Math.floor(st.stage1)}-${Math.floor(st.stage2)}-${st.refinedShown}-${st.showPanel}-${toggle}`}>
-            {toggle === 'forecast' ? (
-              <ForecastPanel />
-            ) : toggle === 'limits' ? (
-              <DataLimitsPanel />
-            ) : toggle === 'handoff' ? (
-              <BacktrackHandoffPanel />
-            ) : toggle === 'sbs' ? (
-              <BacktrackSideBySide />
-            ) : showUncertainty ? (
-              <>
-                <UncertaintyPanel />
-                <button className="shell-btn" onClick={() => select(null)}>← back to source estimate</button>
-              </>
-            ) : (
-              <>
-                <StageSection
-                  id="bt1"
-                  title="STAGE 1 — AGE ESTIMATION"
-                  done={st.stage1 >= STAGE_LINES}
-                  summary={`${backtracking.age_window_h[0]}–${backtracking.age_window_h[1]} h · ${backtracking.hypotheses_h.join('/')} h tested`}
-                >
-                  <Stage1Panel upTo={st.stage1 - 1} />
-                </StageSection>
-
-                <StageSection
-                  id="bt2"
-                  title="STAGE 2 — FORCING DATA"
-                  done={st.stage2 >= STAGE_LINES}
-                  summary={`${backtracking.forcing.net_drift} · wind drift ${backtracking.forcing.wind_drift_factor_pct}%`}
-                >
-                  <Stage2Panel upTo={st.stage2 - 1} />
-                </StageSection>
-
-                {st.stage2 >= STAGE_LINES && (
-                  <StageSection
-                    id="bt3"
-                    title="STAGE 3 — BACKTRACKING"
-                    done={st.refinedShown}
-                    summary={`${backtracking.cloud_km2.before} → ${backtracking.cloud_km2.after} km² · FSS ${backtracking.fss} (baseline ${backtracking.fss_baseline})`}
-                  >
-                    <Stage3Panel refined={st.refinedShown} shown />
-                  </StageSection>
-                )}
-                {st.showPanel && (
-                  <div data-payoff>
-                    <SourcePanel />
-                  </div>
-                )}
-              </>
-            )}
-          </PanelScroll>
-        </aside>
+        <aside className="screen__panel">{panelContent}</aside>
+        {magnified && <Magnifier>{panelContent}</Magnifier>}
       </div>
 
       <footer className="screen__footer">

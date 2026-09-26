@@ -31,9 +31,14 @@ reflows; record at 1080p for a pixel-exact capture.
 | `Space` | play / pause |
 | `R` | restart the module |
 | `T` | cycle the toggles |
+| `Z` | magnify the right panel to 1.5× (Explore only; `Z` or `Esc` to close) |
 | `←` `→` | step between timeline beats |
 
 There is no pan or zoom anywhere. Camera moves are scripted only.
+
+**Minimum live resolution is 1440×800; record at 1920×1080.** The stage scales
+uniformly, so panel type shrinks with the window. On a smaller screen press `Z`
+for a 1.5× view of the right panel.
 
 **Explore mode is what you want when a judge asks a question.** It holds the end
 state and everything responds: click any patch, track, the source ellipse or a

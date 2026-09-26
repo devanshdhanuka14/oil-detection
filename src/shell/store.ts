@@ -38,6 +38,8 @@ type State = {
   hiddenLayers: Record<string, boolean>;
   /** Which completed stage the presenter has reopened; one at a time. */
   expandedStage: string | null;
+  /** Presenter magnifier (Z). Explore only; never during a timeline. */
+  magnified: boolean;
 
   setModule: (m: ModuleId) => void;
   setMode: (m: Mode) => void;
@@ -55,6 +57,8 @@ type State = {
   setSigma: (s: 1 | 2 | 3) => void;
   toggleLayer: (id: string) => void;
   setExpandedStage: (id: string | null) => void;
+  setMagnified: (on: boolean) => void;
+  toggleMagnifier: () => void;
   nextModule: () => void;
 };
 
@@ -72,11 +76,12 @@ export const useApp = create<State>((set, get) => ({
   sigma: 2,
   hiddenLayers: {},
   expandedStage: null,
+  magnified: false,
 
-  setModule: (module) => set({ module, beat: 0, toggle: null, selection: null, expandedStage: null }),
-  setMode: (mode) => set({ mode, paused: false, toggle: null, selection: null, expandedStage: null }),
+  setModule: (module) => set({ module, beat: 0, toggle: null, selection: null, expandedStage: null, magnified: false }),
+  setMode: (mode) => set({ mode, paused: false, toggle: null, selection: null, expandedStage: null, magnified: false }),
   togglePause: () => set((s) => ({ paused: !s.paused })),
-  restart: () => set({ beat: 0, paused: false, toggle: null, selection: null, expandedStage: null }),
+  restart: () => set({ beat: 0, paused: false, toggle: null, selection: null, expandedStage: null, magnified: false }),
   setBeat: (beat) => set({ beat }),
   stepBeat: (d) => set((s) => ({ beat: Math.max(0, s.beat + d), paused: true })),
   setToggle: (toggle) => set({ toggle }),
@@ -94,6 +99,10 @@ export const useApp = create<State>((set, get) => ({
   setSigma: (sigma) => set({ sigma }),
   toggleLayer: (id) => set((s) => ({ hiddenLayers: { ...s.hiddenLayers, [id]: !s.hiddenLayers[id] } })),
   setExpandedStage: (expandedStage) => set({ expandedStage }),
+  setMagnified: (magnified) => set({ magnified }),
+  // Guarded here as well as in the key handler, so nothing can open it while a
+  // timeline is running.
+  toggleMagnifier: () => set((s) => ({ magnified: s.mode === 'explore' ? !s.magnified : false })),
   nextModule: () => {
     const i = MODULE_ORDER.indexOf(get().module);
     if (i < MODULE_ORDER.length - 1) get().setModule(MODULE_ORDER[i + 1]);

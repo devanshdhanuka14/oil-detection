@@ -62,6 +62,7 @@ Read these before writing code:
 - `F`: play full case
 - `E`: explore mode
 - `T`: cycle toggles
+- `Z`: presenter magnifier — right panel at 1.5×, Explore only (`Z` or `Esc` to close)
 - `←` `→`: step between timeline beats
 
 ## 3. Stack and rendering
@@ -77,6 +78,11 @@ Read these before writing code:
   `scenario.geo.coastline_fallback_points`.
 - **Fixed 1920×1080 stage**, scaled to fit the window (letterboxed) so the layout never
   reflows while recording.
+- **Minimum live resolution is 1440×800. Recording is always 1920×1080.**
+  The stage scales uniformly, so panel type shrinks with the window: 13 px renders at
+  9.6 px at 1440×800 and 8.7 px at 1280×720. Below 1440×800 the panel is legible to a
+  presenter leaning in, but not to a room. The `Z` magnifier covers the gap when a
+  smaller screen is unavoidable.
 - Fonts bundled locally: Inter (UI) and JetBrains Mono (numbers, coordinates, JSON).
 
 ## 4. Generated (synthetic) data
