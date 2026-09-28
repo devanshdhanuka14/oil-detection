@@ -10,7 +10,8 @@
     "audit:numbers": "tsx scripts/audit-numbers.ts",
     "make:coastline": "tsx scripts/make-coastline.ts",
     "check:geometry": "tsx scripts/check-geometry.ts",
-    "test": "tsx scripts/check-geometry.ts && tsx scripts/audit-numbers.ts"
+    "test": "tsx scripts/check-geometry.ts && tsx scripts/audit-numbers.ts",
+    "verify:demo": "node scripts/verify-demo.mjs"
   },
   "dependencies": {
     "gsap": "^3.12.5",

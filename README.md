@@ -60,7 +60,7 @@ particle trail; drag the rewind scrubber; move the threshold slider.
 npm test
 ```
 
-Two mechanical checks, both of which have caught real bugs:
+Three checks, all of which have caught real bugs:
 
 - `check:geometry` — the drawn S01 outline must carry the area the panel claims,
   at all three outline levels, over the stated 18.0 km extent, reaching the
@@ -68,6 +68,17 @@ Two mechanical checks, both of which have caught real bugs:
   and elongation measured from the outline for both the confirmed slick and the
   rejected example (so "8.05" and "1.6" are the same quantity).
 - `audit:numbers` — no component may hold a scenario number.
+
+```
+npm run verify:demo
+```
+
+Builds, serves the production build and drives the real app with the presenter
+keys: all three screens in Explore, clicking S14 and MV Tessera Bay to check
+their cards, the stop rule at 50 / 65 / 80 %, the `Z` magnifier, and the
+synthetic badge on every screen. 32 checks; it names each failure and exits
+non-zero. Needs a Chrome or Chromium binary — set `CHROME_PATH` if it is
+somewhere unusual.
 
 ## Where the numbers come from
 
